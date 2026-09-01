@@ -4,28 +4,47 @@
   Keep your bike running smoothly with our workshop services.
 </p>
 
+<%
+  category_icons = {
+    "Tires & tubes"     => "bi-record-circle",
+    "Brakes"            => "bi-octagon",
+    "Drivetrain"        => "bi-gear",
+    "Wheels & bearings" => "bi-arrow-repeat",
+    "Full service"      => "bi-stars"
+  }
+  default_category_icon = "bi-tag"
+%>
+
 <div class="table-responsive">
   <table class="table table-striped table-hover align-middle">
     <thead>
       <tr>
         <th scope="col">Service</th>
-        <th scope="col">Price</th>
+        <th scope="col" class="text-end">Price</th>
       </tr>
     </thead>
 
     <tbody>
-      <% @services.each do |service| %>
-        <tr>
-          <td><%= service[:name] %></td>
-          <td>
-            <%= number_to_currency(
-                  service[:price],
-                  unit: "$",
-                  precision: 0,
-                  delimiter: "."
-                ) %>
-          </td>
+      <% @services.group_by { |service| service[:category] || "Other services" }.each do |category, services| %>
+        <tr class="table-light">
+          <th colspan="2" scope="colgroup">
+            <i class="bi <%= category_icons.fetch(category, default_category_icon) %> me-2" aria-hidden="true"></i><%= category %>
+          </th>
         </tr>
+
+        <% services.each do |service| %>
+          <tr>
+            <td><%= service[:name] %></td>
+            <td class="text-end text-tabular">
+              <%= number_to_currency(
+                    service[:price],
+                    unit: "$",
+                    precision: 0,
+                    delimiter: "."
+                  ) %>
+            </td>
+          </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
