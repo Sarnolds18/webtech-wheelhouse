@@ -1,0 +1,59 @@
+<section class="text-center mb-5">
+  <h1>Wheelhouse</h1>
+
+  <p class="lead">
+    Bicycle repair and maintenance, done by people who know bikes.
+  </p>
+
+  <p>
+    Wheelhouse is a local bicycle workshop focused on reliable service,
+    clear pricing and getting your bike safely back on the road.
+  </p>
+
+  <%= link_to "View our services", services_path, class: "btn btn-primary btn-lg mt-2" %>
+</section>
+
+<section>
+  <h2 class="text-center mb-4">How can we help?</h2>
+
+  <div class="row g-4">
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h3 class="h5 card-title">Workshop services</h3>
+          <p class="card-text">
+            Check our repair and maintenance services and their current prices.
+          </p>
+
+          <%= link_to "See services", services_path, class: "btn btn-outline-primary" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h3 class="h5 card-title">Visit the workshop</h3>
+          <p class="card-text">
+            Find out where we are, when we are open and what happens when you bring your bike in.
+          </p>
+
+          <%= link_to "Plan your visit", visiting_path, class: "btn btn-outline-primary" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h3 class="h5 card-title">About Wheelhouse</h3>
+          <p class="card-text">
+            Learn more about the people behind the workshop and how we work.
+          </p>
+
+          <%= link_to "About us", about_path, class: "btn btn-outline-primary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

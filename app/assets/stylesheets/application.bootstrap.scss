@@ -1,0 +1,18 @@
+$primary: #1f5f74;
+$secondary: #6c8b7a;
+$border-radius: 0.65rem;
+
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons";
+
+body {
+  background-color: #f8f9fa;
+}
+
+.navbar-brand {
+  letter-spacing: 0.03rem;
+}
+
+main {
+  min-height: 80vh;
+}
