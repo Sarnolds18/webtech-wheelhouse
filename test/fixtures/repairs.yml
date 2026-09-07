@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  bike_id: 
+  customer_id: 
+  mechanic_id: 
+  state: MyString
+  received_at: 2026-09-07 11:42:03
+  promised_on: 2026-09-07
+  quoted_at: 2026-09-07 11:42:03
+  quoted_amount: 9.99
+  quote_response: MyString
+  responded_at: 2026-09-07 11:42:03
+  finished_at: 2026-09-07 11:42:03
+  collected_at: 2026-09-07 11:42:03
+
+two:
+  bike_id: 
+  customer_id: 
+  mechanic_id: 
+  state: MyString
+  received_at: 2026-09-07 11:42:03
+  promised_on: 2026-09-07
+  quoted_at: 2026-09-07 11:42:03
+  quoted_amount: 9.99
+  quote_response: MyString
+  responded_at: 2026-09-07 11:42:03
+  finished_at: 2026-09-07 11:42:03
+  collected_at: 2026-09-07 11:42:03
