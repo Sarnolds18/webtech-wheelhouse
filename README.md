@@ -4,11 +4,14 @@ Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its pub
 application with four pages: **Home**, **Services** (the shop's price list), **Visiting the workshop**
 (location, hours and what happens when a bike comes in), and **About** (who runs the shop).
 
-Only the public price list and general shop information live here — no customer, bicycle or repair data.
-That part of the system is designed, not built yet: see `docs/` for the domain model, user stories,
-wireframes and open design decisions this application is built towards.
+Only the public price list and general shop information appear on these pages — no customer, bicycle or
+repair data is shown here. That data exists in the database now (customers, bikes, mechanics, repairs and
+the services they billed), seeded for development, but there are no pages or forms to browse it yet: see
+`docs/` for the domain model, user stories, wireframes and open design decisions the rest of the
+application is built towards.
 
-- [`docs/domain-model.md`](docs/domain-model.md) — the database schema this app will grow into
+- [`docs/domain-model.md`](docs/domain-model.md) — the database schema, and how it has changed since it
+  was first designed
 - [`docs/user-stories.md`](docs/user-stories.md) — who uses the shop's internal tools and why
 - [`docs/wireframes.md`](docs/wireframes.md) — sketches of the screens those stories describe
 - [`docs/decisions.md`](docs/decisions.md) — open questions for the owner and what was assumed instead
@@ -28,8 +31,12 @@ cd webtech-wheelhouse
 bundle install
 npm install
 
-bin/rails db:create
+bin/rails db:setup
 ```
+
+`db:setup` creates the development database, loads `db/schema.rb` and runs `db/seeds.rb` — one command,
+fresh clone to a seeded database. (`bin/rails db:reset` does the same on a database that already exists,
+dropping it first.)
 
 ## Running the app
 
