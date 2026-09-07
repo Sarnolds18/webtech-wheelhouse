@@ -25,7 +25,7 @@
     </thead>
 
     <tbody>
-      <% @services.group_by { |service| service[:category] || "Other services" }.each do |category, services| %>
+      <% @services.group_by { |service| service.category || "Other services" }.each do |category, services| %>
         <tr class="table-light">
           <th colspan="2" scope="colgroup">
             <i class="bi <%= category_icons.fetch(category, default_category_icon) %> me-2" aria-hidden="true"></i><%= category %>
@@ -34,10 +34,10 @@
 
         <% services.each do |service| %>
           <tr>
-            <td><%= service[:name] %></td>
+            <td><%= service.name %></td>
             <td class="text-end text-tabular">
               <%= number_to_currency(
-                    service[:price],
+                    service.price,
                     unit: "$",
                     precision: 0,
                     delimiter: "."
