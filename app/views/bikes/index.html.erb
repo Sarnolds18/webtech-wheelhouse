@@ -1,0 +1,21 @@
+<h1>Bikes</h1>
+
+<% if @bikes.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Serial number</th>
+          <th scope="col">Model</th>
+          <th scope="col">Owner</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <%= render @bikes %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p>No bikes on record yet.</p>
+<% end %>

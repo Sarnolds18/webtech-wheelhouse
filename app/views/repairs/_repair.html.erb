@@ -1,0 +1,14 @@
+<%
+  repair_overdue = repair.promised_on < Date.current && repair.collected_at.nil?
+%>
+<tr class="<%= "table-danger" if repair_overdue %>">
+  <td><%= link_to repair.bike.serial_number, bike_path(repair.bike) %></td>
+  <td><%= link_to repair.customer.name, customer_path(repair.customer) %></td>
+  <td>
+    <span class="badge text-bg-secondary"><%= repair.state.humanize %></span>
+    <% if repair_overdue %>
+      <span class="badge text-bg-danger">Overdue</span>
+    <% end %>
+  </td>
+  <td><%= repair.promised_on.strftime("%B %-d, %Y") %></td>
+</tr>

@@ -1,0 +1,23 @@
+<h1>Staff</h1>
+
+<% if @mechanics.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @mechanics.each do |mechanic| %>
+          <tr>
+            <td><%= link_to mechanic.name, mechanic_path(mechanic) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p>No staff on record yet.</p>
+<% end %>

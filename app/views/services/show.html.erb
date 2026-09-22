@@ -1,0 +1,16 @@
+<% content_for :title, @service.name %>
+
+<h1><%= @service.name %></h1>
+
+<p class="lead">
+  <%= @service.category || "Other services" %>
+</p>
+
+<dl class="row">
+  <dt class="col-sm-3">Price</dt>
+  <dd class="col-sm-9 text-tabular">
+    <%= number_to_currency(@service.price, unit: "$", precision: 0, delimiter: ".") %>
+  </dd>
+</dl>
+
+<%= link_to "Back to services", services_path, class: "btn btn-outline-primary" %>

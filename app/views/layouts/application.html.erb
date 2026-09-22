@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Wheelhouse</title>
+    <title><%= content_for?(:title) ? "#{yield(:title)} — Wheelhouse" : "Wheelhouse" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <%= csrf_meta_tags %>
@@ -42,6 +42,30 @@
               <%= link_to "Services",
                   services_path,
                   class: "nav-link #{'text-primary fw-semibold' if current_page?(services_path)}" %>
+            </li>
+
+            <li class="nav-item">
+              <%= link_to "Customers",
+                  customers_path,
+                  class: "nav-link #{'text-primary fw-semibold' if current_page?(customers_path)}" %>
+            </li>
+
+            <li class="nav-item">
+              <%= link_to "Bikes",
+                  bikes_path,
+                  class: "nav-link #{'text-primary fw-semibold' if current_page?(bikes_path)}" %>
+            </li>
+
+            <li class="nav-item">
+              <%= link_to "Repairs",
+                  repairs_path,
+                  class: "nav-link #{'text-primary fw-semibold' if current_page?(repairs_path)}" %>
+            </li>
+
+            <li class="nav-item">
+              <%= link_to "Staff",
+                  mechanics_path,
+                  class: "nav-link #{'text-primary fw-semibold' if current_page?(mechanics_path)}" %>
             </li>
 
             <li class="nav-item">

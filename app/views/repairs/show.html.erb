@@ -1,0 +1,86 @@
+<%
+  total = @repair.repair_services.sum(:charged_price)
+%>
+<% content_for :title, "Repair ##{@repair.id}" %>
+
+<h1>Repair #<%= @repair.id %></h1>
+
+<dl class="row">
+  <dt class="col-sm-3">Bike</dt>
+  <dd class="col-sm-9"><%= link_to @repair.bike.serial_number, bike_path(@repair.bike) %></dd>
+
+  <dt class="col-sm-3">Customer</dt>
+  <dd class="col-sm-9"><%= link_to @repair.customer.name, customer_path(@repair.customer) %></dd>
+
+  <dt class="col-sm-3">Mechanic</dt>
+  <dd class="col-sm-9"><%= @repair.mechanic&.name || "Not assigned yet" %></dd>
+
+  <dt class="col-sm-3">State</dt>
+  <dd class="col-sm-9"><span class="badge text-bg-secondary"><%= @repair.state.humanize %></span></dd>
+
+  <dt class="col-sm-3">Received</dt>
+  <dd class="col-sm-9"><%= @repair.received_at.strftime("%B %-d, %Y at %H:%M") %></dd>
+
+  <dt class="col-sm-3">Promised</dt>
+  <dd class="col-sm-9"><%= @repair.promised_on.strftime("%B %-d, %Y") %></dd>
+
+  <% if @repair.quoted_at %>
+    <dt class="col-sm-3">Quoted</dt>
+    <dd class="col-sm-9">
+      <%= number_to_currency(@repair.quoted_amount, unit: "$", precision: 0, delimiter: ".") %>
+      on <%= @repair.quoted_at.strftime("%B %-d, %Y") %>
+      <% if @repair.quote_response %>
+        — customer <%= @repair.quote_response %>
+      <% end %>
+    </dd>
+  <% end %>
+
+  <% if @repair.finished_at %>
+    <dt class="col-sm-3">Finished</dt>
+    <dd class="col-sm-9"><%= @repair.finished_at.strftime("%B %-d, %Y at %H:%M") %></dd>
+  <% end %>
+
+  <% if @repair.collected_at %>
+    <dt class="col-sm-3">Collected</dt>
+    <dd class="col-sm-9"><%= @repair.collected_at.strftime("%B %-d, %Y at %H:%M") %></dd>
+  <% end %>
+</dl>
+
+<h2 class="h4 mt-4">Services charged</h2>
+
+<% if @repair.repair_services.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Service</th>
+          <th scope="col" class="text-end">Charged</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @repair.repair_services.each do |repair_service| %>
+          <tr>
+            <td><%= repair_service.service.name %></td>
+            <td class="text-end text-tabular">
+              <%= number_to_currency(repair_service.charged_price, unit: "$", precision: 0, delimiter: ".") %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <th scope="row">Total</th>
+          <th class="text-end text-tabular">
+            <%= number_to_currency(total, unit: "$", precision: 0, delimiter: ".") %>
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+<% else %>
+  <p>No services have been added yet.</p>
+<% end %>
+
+<%= link_to "Back to repairs", repairs_path, class: "btn btn-outline-primary" %>

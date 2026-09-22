@@ -1,0 +1,5 @@
+<tr>
+  <td><%= link_to bike.serial_number, bike_path(bike) %></td>
+  <td><%= bike.bike_model.brand %> <%= bike.bike_model.name %></td>
+  <td><%= link_to bike.customer.name, customer_path(bike.customer) %></td>
+</tr>
