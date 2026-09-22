@@ -5,4 +5,5 @@ class Repair < ApplicationRecord
 
   has_many :repair_services
   has_many :invoices
+  has_many :services, through: :repair_services
 end
