@@ -4,6 +4,6 @@ class MechanicsController < ApplicationController
   end
 
   def show
-    @mechanic = Mechanic.find(params[:id])
+    @mechanic = Mechanic.includes(:repairs).find(params[:id])
   end
 end

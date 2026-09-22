@@ -5,5 +5,7 @@ class Bike < ApplicationRecord
 
   scope :by_serial_number, -> { order(:serial_number) }
 
+  before_validation { self.serial_number = serial_number.strip.upcase if serial_number.present? }
+
   validates :serial_number, presence: true, uniqueness: true
 end

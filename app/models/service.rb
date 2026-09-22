@@ -4,6 +4,8 @@ class Service < ApplicationRecord
 
   scope :by_category_and_name, -> { order(:category, :name) }
 
+  before_validation { self.name = name.strip if name.present? }
+
   validates :name, presence: true, uniqueness: true
   validates :price, presence: true, numericality: { greater_than: 0 }
 end
