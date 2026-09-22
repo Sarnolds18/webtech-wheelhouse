@@ -1,6 +1,6 @@
 class ServicesController < ApplicationController
   def index
-    @services = Service.order(:category, :name)
+    @services = Service.by_category_and_name
   end
 
   def show

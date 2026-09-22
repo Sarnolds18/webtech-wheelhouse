@@ -1,6 +1,3 @@
-<%
-  total = @repair.repair_services.sum(:charged_price)
-%>
 <% content_for :title, "Repair ##{@repair.id}" %>
 
 <h1>Repair #<%= @repair.id %></h1>
@@ -73,7 +70,7 @@
         <tr>
           <th scope="row">Total</th>
           <th class="text-end text-tabular">
-            <%= number_to_currency(total, unit: "$", precision: 0, delimiter: ".") %>
+            <%= number_to_currency(@repair.total, unit: "$", precision: 0, delimiter: ".") %>
           </th>
         </tr>
       </tfoot>

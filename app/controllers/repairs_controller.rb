@@ -1,6 +1,6 @@
 class RepairsController < ApplicationController
   def index
-    @repairs = Repair.order(received_at: :desc)
+    @repairs = Repair.newest_first
   end
 
   def show

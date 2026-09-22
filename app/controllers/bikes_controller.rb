@@ -1,6 +1,6 @@
 class BikesController < ApplicationController
   def index
-    @bikes = Bike.order(:serial_number)
+    @bikes = Bike.by_serial_number
   end
 
   def show
