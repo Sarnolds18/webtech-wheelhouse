@@ -6,9 +6,9 @@ Rails.application.routes.draw do
   get "visiting", to: "pages#visiting", as: :visiting
   get "about", to: "pages#about", as: :about
 
-  resources :customers, only: [ :index, :show ]
+  resources :customers
   resources :bikes, only: [ :index, :show ]
   resources :repairs, only: [ :index, :show ]
   resources :services, only: [ :index, :show ]
-  resources :mechanics, only: [ :index, :show ]
+  resources :mechanics
 end

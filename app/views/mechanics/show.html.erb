@@ -1,6 +1,14 @@
 <% content_for :title, @mechanic.name %>
 
-<h1><%= @mechanic.name %></h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="mb-0"><%= @mechanic.name %></h1>
+
+  <div class="d-flex gap-2">
+    <%= link_to "Edit", edit_mechanic_path(@mechanic), class: "btn btn-primary" %>
+    <%= button_to "Delete", @mechanic, method: :delete, class: "btn btn-outline-danger",
+                  form: { data: { turbo_confirm: "Delete staff member #{@mechanic.name}? Their repairs will be left unassigned." } } %>
+  </div>
+</div>
 
 <h2 class="h4 mt-4">Repairs assigned</h2>
 

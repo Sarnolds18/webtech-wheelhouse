@@ -29,3 +29,15 @@
 
 en:
   hello: "Hello world"
+
+  activerecord:
+    models:
+      # The mechanics table also holds the person at the counter, so the pages call it "staff".
+      mechanic:
+        one: "Staff member"
+        other: "Staff"
+    errors:
+      messages:
+        # Shown when a dependent: :restrict_with_error refuses a destroy, e.g. "It still has bikes."
+        restrict_dependent_destroy:
+          has_many: "It still has %{record}."

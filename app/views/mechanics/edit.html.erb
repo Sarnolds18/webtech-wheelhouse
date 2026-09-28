@@ -1,0 +1,5 @@
+<% content_for :title, "Edit #{@mechanic.name_was}" %>
+
+<h1>Edit <%= @mechanic.name_was %></h1>
+
+<%= render "form", mechanic: @mechanic, cancel_path: mechanic_path(@mechanic) %>
