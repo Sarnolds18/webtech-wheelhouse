@@ -23,5 +23,9 @@ module WebtechWheelhouse
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Don't wrap fields with errors in <div class="field_with_errors">: it breaks Bootstrap's form
+    # layout. Forms mark invalid fields themselves (see ApplicationHelper).
+    config.action_view.field_error_proc = proc { |html_tag, _instance| html_tag }
   end
 end
