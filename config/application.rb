@@ -21,7 +21,8 @@ module WebtechWheelhouse
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # The shop is in Chile: times are shown, typed in forms and compared to "today" in Chilean time.
+    config.time_zone = "Santiago"
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Don't wrap fields with errors in <div class="field_with_errors">: it breaks Bootstrap's form
