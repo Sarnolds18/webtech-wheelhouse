@@ -1,0 +1,101 @@
+<%= form_with model: repair do |form| %>
+  <%= render "shared/error_summary", record: repair %>
+
+  <fieldset class="mb-4">
+    <legend class="h5">Intake</legend>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= form.label :bike_id, "Bike", class: "form-label" %>
+        <%= form.collection_select :bike_id, Bike.by_serial_number, :id, :serial_number,
+                                   { prompt: "Choose a bike" },
+                                   class: field_class(form, :bike_id, "form-select"),
+                                   aria: { describedby: "repair_bike_help" } %>
+        <div id="repair_bike_help" class="form-text">The customer is taken from the bike's owner.</div>
+        <%= field_errors(form, :bike_id) %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :mechanic_id, "Mechanic", class: "form-label" %>
+        <%= form.collection_select :mechanic_id, Mechanic.by_name, :id, :name,
+                                   { include_blank: "Not assigned yet" },
+                                   class: field_class(form, :mechanic_id, "form-select") %>
+        <%= field_errors(form, :mechanic_id) %>
+      </div>
+
+      <div class="col-md-4">
+        <%= form.label :state, class: "form-label" %>
+        <%= form.select :state, Repair.states.keys.map { |state| [ state.humanize, state ] }, {},
+                        class: field_class(form, :state, "form-select") %>
+        <%= field_errors(form, :state) %>
+      </div>
+
+      <div class="col-md-4">
+        <%= form.label :received_at, "Received", class: "form-label" %>
+        <%= form.datetime_field :received_at, include_seconds: false, class: field_class(form, :received_at) %>
+        <%= field_errors(form, :received_at) %>
+      </div>
+
+      <div class="col-md-4">
+        <%= form.label :promised_on, "Promised for", class: "form-label" %>
+        <%= form.date_field :promised_on, class: field_class(form, :promised_on) %>
+        <%= field_errors(form, :promised_on) %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="mb-4">
+    <legend class="h5">Quote</legend>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= form.label :quoted_at, "Quoted", class: "form-label" %>
+        <%= form.datetime_field :quoted_at, include_seconds: false, class: field_class(form, :quoted_at) %>
+        <%= field_errors(form, :quoted_at) %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :quoted_amount, "Quoted amount (CLP)", class: "form-label" %>
+        <%= form.number_field :quoted_amount, class: field_class(form, :quoted_amount) %>
+        <%= field_errors(form, :quoted_amount) %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :quote_response, "Customer's answer", class: "form-label" %>
+        <%= form.select :quote_response, Repair.quote_responses.keys.map { |answer| [ answer.humanize, answer ] },
+                        { include_blank: "No answer yet" },
+                        class: field_class(form, :quote_response, "form-select") %>
+        <%= field_errors(form, :quote_response) %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :responded_at, "Answered", class: "form-label" %>
+        <%= form.datetime_field :responded_at, include_seconds: false, class: field_class(form, :responded_at) %>
+        <%= field_errors(form, :responded_at) %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="mb-4">
+    <legend class="h5">Hand-back</legend>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= form.label :finished_at, "Finished", class: "form-label" %>
+        <%= form.datetime_field :finished_at, include_seconds: false, class: field_class(form, :finished_at) %>
+        <%= field_errors(form, :finished_at) %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :collected_at, "Collected", class: "form-label" %>
+        <%= form.datetime_field :collected_at, include_seconds: false, class: field_class(form, :collected_at) %>
+        <%= field_errors(form, :collected_at) %>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="d-flex flex-wrap gap-2">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", cancel_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

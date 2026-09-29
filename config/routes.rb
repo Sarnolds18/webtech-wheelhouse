@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   resources :customers
   resources :bikes
-  resources :repairs, only: [ :index, :show ]
+  resources :repairs
   resources :services
   resources :mechanics
 end

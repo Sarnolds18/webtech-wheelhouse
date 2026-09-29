@@ -18,9 +18,18 @@ class Repair < ApplicationRecord
     collected: "collected"
   }
 
+  # The customer's answer to the quote. Its values are spelled like two states, so the prefix keeps
+  # its methods apart from the state's: quote_approved? vs approved?.
+  enum :quote_response, { approved: "approved", declined: "declined" }, prefix: :quote
+
   scope :open, -> { where.not(state: :collected) }
   scope :overdue, -> { open.where("promised_on < ?", Date.current) }
   scope :newest_first, -> { order(received_at: :desc) }
+
+  # The customer on a repair is whoever brought the bike in on that visit (docs/decisions.md). It is
+  # taken from the bike when the repair is created or its bike is corrected, and left alone otherwise,
+  # so an old repair still names the right person after the bike is sold.
+  before_validation :take_customer_from_bike, if: :will_save_change_to_bike_id?
 
   validates :state, presence: true
   validates :received_at, presence: true
@@ -39,6 +48,10 @@ class Repair < ApplicationRecord
   end
 
   private
+
+  def take_customer_from_bike
+    self.customer_id = bike.customer_id if bike
+  end
 
   def handback_and_promised_day_not_before_received
     return unless received_at.present?
