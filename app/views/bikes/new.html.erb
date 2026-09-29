@@ -1,0 +1,5 @@
+<% content_for :title, "New bike" %>
+
+<h1>New bike</h1>
+
+<%= render "form", bike: @bike, cancel_path: @bike.customer ? customer_path(@bike.customer) : bikes_path %>

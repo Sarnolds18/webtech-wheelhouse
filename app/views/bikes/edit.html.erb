@@ -1,0 +1,5 @@
+<% content_for :title, "Edit #{@bike.serial_number_was}" %>
+
+<h1>Edit <%= @bike.serial_number_was %></h1>
+
+<%= render "form", bike: @bike, cancel_path: bike_path(@bike) %>

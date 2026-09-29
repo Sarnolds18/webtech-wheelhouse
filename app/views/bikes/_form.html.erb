@@ -1,0 +1,28 @@
+<%= form_with model: bike do |form| %>
+  <%= render "shared/error_summary", record: bike %>
+
+  <div class="mb-3">
+    <%= form.label :serial_number, class: "form-label" %>
+    <%= form.text_field :serial_number, class: field_class(form, :serial_number) %>
+    <%= field_errors(form, :serial_number) %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :bike_model_id, "Model", class: "form-label" %>
+    <%= form.collection_select :bike_model_id, BikeModel.by_brand_and_name, :id, :brand_and_name,
+                               { prompt: "Choose a model" }, class: field_class(form, :bike_model_id, "form-select") %>
+    <%= field_errors(form, :bike_model_id) %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :customer_id, "Owner", class: "form-label" %>
+    <%= form.collection_select :customer_id, Customer.by_name, :id, :name,
+                               { prompt: "Choose the owner" }, class: field_class(form, :customer_id, "form-select") %>
+    <%= field_errors(form, :customer_id) %>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", cancel_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
