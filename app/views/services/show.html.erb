@@ -1,6 +1,14 @@
 <% content_for :title, @service.name %>
 
-<h1><%= @service.name %></h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="mb-0"><%= @service.name %></h1>
+
+  <div class="d-flex gap-2">
+    <%= link_to "Edit", edit_service_path(@service), class: "btn btn-primary" %>
+    <%= button_to "Delete", @service, method: :delete, class: "btn btn-outline-danger",
+                  form: { data: { turbo_confirm: "Delete service #{@service.name}?" } } %>
+  </div>
+</div>
 
 <p class="lead">
   <%= @service.category || "Other services" %>

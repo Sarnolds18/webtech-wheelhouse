@@ -36,6 +36,10 @@ en:
       mechanic:
         one: "Staff member"
         other: "Staff"
+    attributes:
+      service:
+        # Read by the refused-destroy message: "It still has charges on repairs."
+        repair_services: "Charges on repairs"
     errors:
       messages:
         # Shown when a dependent: :restrict_with_error refuses a destroy, e.g. "It still has bikes."

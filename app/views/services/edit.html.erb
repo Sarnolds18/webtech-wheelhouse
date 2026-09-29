@@ -1,0 +1,5 @@
+<% content_for :title, "Edit #{@service.name_was}" %>
+
+<h1>Edit <%= @service.name_was %></h1>
+
+<%= render "form", service: @service, cancel_path: service_path(@service) %>
