@@ -1,14 +1,13 @@
 # Wheelhouse
 
-Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its public website — a Rails
-application with four pages: **Home**, **Services** (the shop's price list), **Visiting the workshop**
-(location, hours and what happens when a bike comes in), and **About** (who runs the shop).
+Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its Rails application: the
+public pages — **Home**, **Services** (the shop's price list), **Visiting the workshop** (location, hours
+and what happens when a bike comes in) and **About** — and the pages the shop works with: **Customers**,
+**Bikes**, **Repairs** and **Staff**. Every one of these records can be listed, viewed, created, edited
+and deleted from the browser, and a repair's form also records the services charged on it.
 
-Only the public price list and general shop information appear on these pages — no customer, bicycle or
-repair data is shown here. That data exists in the database now (customers, bikes, mechanics, repairs and
-the services they billed), seeded for development, but there are no pages or forms to browse it yet: see
-`docs/` for the domain model, user stories, wireframes and open design decisions the rest of the
-application is built towards.
+There is no login yet: every page is open to anyone who can reach the app. See `docs/` for the domain
+model, user stories, wireframes and open design decisions the application is built towards.
 
 - [`docs/domain-model.md`](docs/domain-model.md) — the database schema, and how it has changed since it
   was first designed
@@ -18,7 +17,7 @@ application is built towards.
 
 ## Prerequisites
 
-- **Ruby 4.0.4** and **Rails 8.0** (`ruby -v`, `rails -v`)
+- **Ruby 4.0.4** and **Rails 8.1** (`ruby -v`, `rails -v`)
 - **Node 26.1.0** and npm — used to compile Bootstrap's Sass, not for application JavaScript
 - **PostgreSQL**, running locally, with a role that can create databases
 
