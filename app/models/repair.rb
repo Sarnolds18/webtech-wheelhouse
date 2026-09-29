@@ -3,9 +3,14 @@ class Repair < ApplicationRecord
   belongs_to :customer
   belongs_to :mechanic, optional: true
 
-  has_many :repair_services, -> { in_order_added }, dependent: :destroy
+  has_many :repair_services, -> { in_order_added }, dependent: :destroy, index_errors: true
   has_many :invoices, dependent: :destroy
   has_many :services, through: :repair_services
+
+  # The repair's form writes its lines. A new line whose service is left empty is one of the spare
+  # lines the form offers, so it is skipped; an existing line is taken off with _destroy.
+  accepts_nested_attributes_for :repair_services, allow_destroy: true,
+                                                  reject_if: ->(line) { line["id"].blank? && line["service_id"].blank? }
 
   enum :state, {
     received: "received",
@@ -38,6 +43,15 @@ class Repair < ApplicationRecord
 
   validate :handback_and_promised_day_not_before_received
   validate :answer_recorded_once_customer_has_answered
+
+  # Errors on a line are keyed "repair_services[1].charged_price"; this names them the way the form
+  # does, as "Line 2 charged price", so the counter knows which line to fix.
+  def self.human_attribute_name(attribute, options = {})
+    line = attribute.to_s.match(/\Arepair_services\[(\d+)\]\.(.+)\z/)
+    return super unless line
+
+    "Line #{line[1].to_i + 1} #{RepairService.human_attribute_name(line[2]).downcase}"
+  end
 
   def overdue?
     promised_on < Date.current && !collected?

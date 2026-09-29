@@ -77,6 +77,43 @@
   </fieldset>
 
   <fieldset class="mb-4">
+    <legend class="h5">Services charged</legend>
+    <p class="form-text mt-0">
+      Choose a service and the price charged for it today. A new line left without a service is skipped.
+      To take an existing line off the repair, tick Remove.
+    </p>
+
+    <% services = Service.by_category_and_name.to_a %>
+
+    <%= form.fields_for :repair_services do |line_form| %>
+      <div class="row g-2 align-items-end mb-3">
+        <div class="col-md-6">
+          <%= line_form.label :service_id, "Line #{line_form.index + 1} service", class: "form-label" %>
+          <%= line_form.collection_select :service_id, services, :id, :name,
+                                          { include_blank: line_form.object.new_record? && "No service" },
+                                          class: field_class(line_form, :service_id, "form-select") %>
+          <%= field_errors(line_form, :service_id) %>
+        </div>
+
+        <div class="col-8 col-md-4">
+          <%= line_form.label :charged_price, "Line #{line_form.index + 1} charged price (CLP)", class: "form-label" %>
+          <%= line_form.number_field :charged_price, class: field_class(line_form, :charged_price) %>
+          <%= field_errors(line_form, :charged_price) %>
+        </div>
+
+        <div class="col-4 col-md-2">
+          <% if line_form.object.persisted? %>
+            <div class="form-check mb-2">
+              <%= line_form.check_box :_destroy, class: "form-check-input" %>
+              <%= line_form.label :_destroy, "Remove", class: "form-check-label" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </fieldset>
+
+  <fieldset class="mb-4">
     <legend class="h5">Hand-back</legend>
 
     <div class="row g-3">
