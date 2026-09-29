@@ -41,6 +41,12 @@ en:
         # Read by the refused-destroy message: "It still has charges on repairs."
         repair_services: "Charges on repairs"
     errors:
+      models:
+        repair:
+          attributes:
+            # The repair's form has no customer field: the customer is taken from the bike.
+            customer:
+              required: "comes from the bike's owner, so a bike must be chosen"
       messages:
         # Shown when a dependent: :restrict_with_error refuses a destroy, e.g. "It still has bikes."
         restrict_dependent_destroy:
