@@ -2,7 +2,7 @@ class RepairsController < ApplicationController
   before_action :set_repair, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @repairs = Repair.newest_first.includes(:bike, :customer)
+    @repairs = Repair.newest_first.includes(:bike, :customer).with_attached_photos
   end
 
   def show

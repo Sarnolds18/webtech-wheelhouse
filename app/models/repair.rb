@@ -12,7 +12,14 @@ class Repair < ApplicationRecord
   PHOTO_TYPES = %w[ image/jpeg image/png image/webp ].freeze
   PHOTO_MAX_SIZE = 10.megabytes
 
-  has_many_attached :photos
+  # Lists show every photo as a square of this side, cropped to fill it, so they all measure the same
+  # whatever the proportions of the original; the repair's page shows a larger copy that keeps them.
+  THUMB_SIZE = 80
+
+  has_many_attached :photos do |attachable|
+    attachable.variant :thumb, resize_to_fill: [ THUMB_SIZE, THUMB_SIZE ]
+    attachable.variant :large, resize_to_limit: [ 1000, 1000 ]
+  end
 
   # The repair's form writes its lines. A new line whose service is left empty is one of the spare
   # lines the form offers, so it is skipped; an existing line is taken off with _destroy.

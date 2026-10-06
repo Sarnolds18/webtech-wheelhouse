@@ -1,4 +1,17 @@
 <tr class="<%= "table-danger" if repair.overdue? %>">
+  <td>
+    <% if (photo = repair.photos.first) %>
+      <%= image_tag photo.variant(:thumb), width: Repair::THUMB_SIZE, height: Repair::THUMB_SIZE, class: "rounded",
+                    alt: "Intake photo of repair ##{repair.id}, bike #{repair.bike.serial_number}" %>
+    <% else %>
+      <%# Same box as a thumbnail, so a repair without photos keeps its row aligned with the others. %>
+      <div class="d-flex align-items-center justify-content-center rounded bg-light text-secondary"
+           style="width: <%= Repair::THUMB_SIZE %>px; height: <%= Repair::THUMB_SIZE %>px;">
+        <i class="bi bi-camera" aria-hidden="true"></i>
+        <span class="visually-hidden">No photo</span>
+      </div>
+    <% end %>
+  </td>
   <td><%= link_to repair.bike.serial_number, bike_path(repair.bike) %></td>
   <td><%= link_to repair.customer.name, customer_path(repair.customer) %></td>
   <td>
