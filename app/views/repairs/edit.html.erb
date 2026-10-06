@@ -2,4 +2,8 @@
 
 <h1>Edit repair #<%= @repair.id %></h1>
 
+<%# Outside the repair's form: each photo's Remove button is a form of its own, and forms can't nest. %>
+<h2 class="h5">Intake photos on file</h2>
+<%= render "photos", repair: @repair %>
+
 <%= render "form", repair: @repair, cancel_path: repair_path(@repair) %>

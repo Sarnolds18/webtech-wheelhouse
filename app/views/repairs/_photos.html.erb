@@ -1,0 +1,27 @@
+<%# The repair's stored photos, each linking to the original and with its own Remove button. Only
+    persisted photos are listed: on an edit form shown again after a refused upload, the refused
+    files are on the repair in memory but were never stored. %>
+<% photos = repair.photos_attachments.select(&:persisted?) %>
+
+<% if photos.any? %>
+  <div class="row g-3 mb-3">
+    <% photos.each.with_index(1) do |photo, number| %>
+      <div class="col-6 col-md-4 col-lg-3">
+        <figure class="figure mb-0">
+          <%= link_to url_for(photo) do %>
+            <%= image_tag url_for(photo), class: "figure-img img-fluid img-thumbnail",
+                          alt: "Intake photo #{number} of repair ##{repair.id}, bike #{repair.bike.serial_number}" %>
+          <% end %>
+          <figcaption class="figure-caption d-flex justify-content-between align-items-center">
+            Photo <%= number %>
+            <%= button_to "Remove", repair_photo_path(repair, photo), method: :delete,
+                          class: "btn btn-sm btn-outline-danger",
+                          form: { data: { turbo_confirm: "Remove photo #{number} from repair ##{repair.id}?" } } %>
+          </figcaption>
+        </figure>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p>No intake photos yet.</p>
+<% end %>
