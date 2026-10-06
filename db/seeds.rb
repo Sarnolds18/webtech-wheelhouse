@@ -2,9 +2,15 @@
 #
 # Run with `bin/rails db:seed` (or `bin/rails db:setup` on a fresh database, which also creates
 # the database and loads the schema). Safe to run more than once: it clears its own tables first
-# in dependency order, so the row counts never grow on a second run.
+# in dependency order, so the row counts never grow on a second run. That includes the tables of
+# Active Storage and Action Text, which hold the repairs' intake photos and diagnoses.
 
 ActiveRecord::Base.transaction do
+  ActionText::RichText.delete_all
+  ActiveStorage::Attachment.delete_all
+  ActiveStorage::VariantRecord.delete_all
+  ActiveStorage::Blob.find_each(&:purge) # also deletes the file and its variants from storage/
+
   RepairService.delete_all
   Invoice.delete_all
   Repair.delete_all
@@ -268,6 +274,111 @@ ActiveRecord::Base.transaction do
   )
   add_services.call(r16, r16_charges.to_a)
 
+  # --- Intake photos ----------------------------------------------------------
+  #
+  # The image files are in db/seeds/ (credits in db/seeds/CREDITS.md). Each file is stored once and
+  # attached to every repair it fits. The first photo of a repair is the one its row shows, so it's
+  # always one where the bike or the part is clear. R1 and R13 have just come in and their photos
+  # haven't been taken yet; R14 is from before the shop took intake photos.
+
+  photo_files = {
+    road: "bike-01.jpg", mtb: "bike-02.jpg", derailleur: "bike-03.jpg", hanger: "bike-04.jpg",
+    puncture: "bike-05.jpg", gravel_derailleur: "bike-06.jpg", trail: "bike-07.jpg"
+  }
+  photos = photo_files.transform_values do |filename|
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(Rails.root.join("db/seeds", filename)), filename: filename, content_type: "image/jpeg"
+    )
+    blob.analyze # now, so attaching it doesn't queue a background job per repair
+    blob
+  end
+
+  {
+    r2 => [ :mtb, :derailleur ],
+    r3 => [ :mtb, :gravel_derailleur ],
+    r4 => [ :mtb, :puncture, :trail ],
+    r5 => [ :mtb, :derailleur ],
+    r6 => [ :mtb, :gravel_derailleur ],
+    r7 => [ :puncture, :mtb ],
+    r8 => [ :road, :gravel_derailleur ],
+    r9 => [ :road, :gravel_derailleur, :derailleur ],
+    r10 => [ :mtb ],
+    r11 => [ :puncture ],
+    r12 => [ :derailleur, :hanger, :gravel_derailleur, :mtb, :trail ],
+    r15 => [ :mtb, :gravel_derailleur ],
+    r16 => [ :puncture, :mtb, :trail, :derailleur ]
+  }.each do |repair, names|
+    repair.photos.attach(photos.values_at(*names))
+  end
+
+  # --- Diagnoses --------------------------------------------------------------
+  #
+  # What the mechanic found, as the rich text the repair's form writes. R1 and R13 have just come
+  # in, so nobody has looked at them yet.
+
+  {
+    r2 => <<~HTML,
+      <div><strong>Chain stretched past 0.75%</strong>; it was skipping under load.</div>
+      <ul><li>Replace the chain</li><li>Clean and lube the drivetrain</li><li>Cassette still fine</li></ul>
+    HTML
+    r3 => <<~HTML,
+      <div><strong>Rear brake pulls almost to the bar.</strong> Pads have life left.</div>
+      <ul><li>Cable has stretched</li><li>Adjust the barrel and re-centre the caliper</li></ul>
+    HTML
+    r4 => <<~HTML,
+      <div><strong>Rear wheel out of true</strong> by about 4 mm, and the hub has play.</div>
+      <ul><li>True the rear wheel</li><li>Adjust the hub cones</li></ul>
+      <blockquote>Customer hit a pothole on the way to work.</blockquote>
+    HTML
+    r5 => <<~HTML,
+      <div><strong>General wear, nothing broken.</strong></div>
+      <ul><li>Gears slightly out of index</li><li>Brakes need adjusting</li><li>Tyres at the right pressure</li></ul>
+    HTML
+    r6 => <<~HTML,
+      <div><strong>Front and rear pads worn to the metal.</strong> Unsafe to ride as it is.</div>
+      <ul><li>Replace both pairs of pads</li><li>Replace the rear brake cable, it's frayed</li></ul>
+    HTML
+    r7 => <<~HTML,
+      <div><strong>Front tube punctured</strong> by a thorn still in the tyre.</div>
+      <ul><li>Remove the thorn and patch the tube</li><li>Chain dry: clean and lube</li></ul>
+    HTML
+    r8 => <<~HTML,
+      <div><strong>Full service due</strong> after a season of road riding.</div>
+      <ul><li>Bar tape torn</li><li>Front derailleur rubbing in the big ring</li><li>Wheels true</li></ul>
+    HTML
+    r9 => <<~HTML,
+      <div><strong>Brakes squeal and the rear pads are worn.</strong></div>
+      <ul><li>Full tune-up</li><li>New brake pads, front and rear</li></ul>
+      <div>See the <a href="https://www.sheldonbrown.com/brakes.html">brake guide</a> we gave the customer.</div>
+    HTML
+    r10 => <<~HTML,
+      <div><strong>Safety inspection before a long trip</strong>: nothing to fix.</div>
+      <ul><li>Brakes, tyres and bolts checked</li><li>Chain at 0.25%</li></ul>
+    HTML
+    r11 => <<~HTML,
+      <div><strong>Rear flat</strong> from a pinch: the tyre was under-inflated.</div>
+      <ul><li>Patch the tube</li><li>Inflate to 50 psi and tell the customer</li></ul>
+    HTML
+    r12 => <<~HTML,
+      <div><strong>Shifting jumps between gears.</strong> The derailleur hanger is bent and the cassette is worn.</div>
+      <ul><li>Straighten the hanger</li><li>Replace the cassette</li><li>Index the gears</li></ul>
+    HTML
+    r14 => <<~HTML,
+      <div><strong>Yearly service.</strong></div>
+      <ul><li>Full tune-up</li><li>Everything else in good shape</li></ul>
+    HTML
+    r15 => <<~HTML,
+      <div><strong>Front brake lever soft.</strong></div>
+      <ul><li>Adjust the cable tension</li><li>No parts needed</li></ul>
+    HTML
+    r16 => <<~HTML
+      <div><strong>Two broken spokes</strong> on the rear wheel, which has gone out of true.</div>
+      <ul><li>Replace the spokes</li><li>True the wheel</li><li>Adjust the hub</li></ul>
+    HTML
+  }.each do |repair, diagnosis|
+    repair.update!(diagnosis: diagnosis)
+  end
+
   # --- Invoices ---------------------------------------------------------------
   #
   # One per collected repair, issued the moment the bike was handed back.
@@ -279,4 +390,6 @@ end
 
 puts "Seeded: #{Customer.count} customers, #{BikeModel.count} bike models, #{Bike.count} bikes, " \
      "#{Mechanic.count} staff, #{Service.count} services, #{Repair.count} repairs, " \
-     "#{RepairService.count} repair services, #{Invoice.count} invoices."
+     "#{RepairService.count} repair services, #{Invoice.count} invoices, " \
+     "#{ActiveStorage::Attachment.count} intake photos (#{ActiveStorage::Blob.count} files), " \
+     "#{ActionText::RichText.count} diagnoses."
