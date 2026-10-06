@@ -122,6 +122,19 @@ constraint exists this lab, see "Changes since Lab 3" below.)*
   and colour" case is represented with two bikes sharing a `bike_model_id` and differing only in
   `serial_number`. Colour itself isn't required by any Lab 5 requirement and isn't tracked yet.
 
+## Changes in Lab 9: intake photos and the diagnosis
+
+The photos and the diagnosis deferred above have arrived, without a `photos` table and without a
+`repairs.diagnosis` column. Rails keeps both in tables of its own, linked to a repair by
+`record_type = "Repair"` and `record_id`:
+
+- **Intake photos** (story 10) live in Active Storage's tables. `active_storage_blobs` holds one row per
+  stored file, `active_storage_attachments` links a file to a repair (as its `photos`), and
+  `active_storage_variant_records` remembers which smaller copies (the list thumbnail and the larger
+  copy on the repair's page) have already been made.
+- **The diagnosis** (story 6) lives in Action Text's `action_text_rich_texts`, one row per repair that
+  has one, holding the formatted text.
+
 `repairs.customer_id` is the customer who brought the bike in on that visit. `bikes.customer_id` is who owns it now. They are usually the same person and differ once the bike is sold, which is exactly the case the owner cares about.
 
 ## Lifecycle of a repair
@@ -163,8 +176,8 @@ Not allowed, and why:
 | repair_services | 7 — the two or three services a bike needs, each at the price actually charged |
 | invoices | 18 — the record of what was charged, issued when the bike is collected |
 
-`photos` isn't in this table because it isn't in the schema yet — see "Changes since Lab 3." It returns,
-with its story, in Lab 9.
+Intake photos (story 10) and the diagnosis (story 6) are stored in Rails's own Active Storage and
+Action Text tables rather than in a table of this schema — see "Changes in Lab 9."
 
 ## The thing and the copy of the thing
 

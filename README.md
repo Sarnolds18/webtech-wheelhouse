@@ -4,7 +4,9 @@ Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its Rai
 public pages — **Home**, **Services** (the shop's price list), **Visiting the workshop** (location, hours
 and what happens when a bike comes in) and **About** — and the pages the shop works with: **Customers**,
 **Bikes**, **Repairs** and **Staff**. Every one of these records can be listed, viewed, created, edited
-and deleted from the browser, and a repair's form also records the services charged on it.
+and deleted from the browser. A repair's form also records the services charged on it, the photos
+taken when the bike came in (shown as thumbnails wherever repairs are listed) and the mechanic's
+diagnosis, written with formatting.
 
 There is no login yet: every page is open to anyone who can reach the app. See `docs/` for the domain
 model, user stories, wireframes and open design decisions the application is built towards.
@@ -20,6 +22,10 @@ model, user stories, wireframes and open design decisions the application is bui
 - **Ruby 4.0.4** and **Rails 8.1** (`ruby -v`, `rails -v`)
 - **Node 26.1.0** and npm — used to compile Bootstrap's Sass, not for application JavaScript
 - **PostgreSQL**, running locally, with a role that can create databases
+- **libvips**, the image library that makes the photos' thumbnails. Without it the app runs, but no
+  thumbnail can be generated. Install it with your system's package manager:
+  - Ubuntu / Debian / WSL: `sudo apt install libvips`
+  - macOS (Homebrew): `brew install vips`
 
 ## Setup
 
@@ -36,6 +42,10 @@ bin/rails db:setup
 `db:setup` creates the development database, loads `db/schema.rb` and runs `db/seeds.rb` — one command,
 fresh clone to a seeded database. (`bin/rails db:reset` does the same on a database that already exists,
 dropping it first.)
+
+The seed attaches intake photos to most repairs, from the image files in `db/seeds/` (credits in
+`db/seeds/CREDITS.md`). Uploaded files are stored on disk in `storage/`, which git ignores; running the
+seed again replaces them rather than adding more.
 
 ## Running the app
 
