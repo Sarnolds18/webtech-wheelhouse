@@ -1,8 +1,11 @@
 <tr class="<%= "table-danger" if repair.overdue? %>">
+  <td><%= link_to "##{repair.id}", repair_path(repair), class: "fw-semibold" %></td>
   <td>
     <% if (photo = repair.photos.first) %>
-      <%= image_tag photo.variant(:thumb), width: Repair::THUMB_SIZE, height: Repair::THUMB_SIZE, class: "rounded",
-                    alt: "Intake photo of repair ##{repair.id}, bike #{repair.bike.serial_number}" %>
+      <%= link_to repair_path(repair) do %>
+        <%= image_tag photo.variant(:thumb), width: Repair::THUMB_SIZE, height: Repair::THUMB_SIZE, class: "rounded",
+                      alt: "Intake photo of repair ##{repair.id}, bike #{repair.bike.serial_number}" %>
+      <% end %>
     <% else %>
       <%# Same box as a thumbnail, so a repair without photos keeps its row aligned with the others. %>
       <div class="d-flex align-items-center justify-content-center rounded bg-light text-secondary"
