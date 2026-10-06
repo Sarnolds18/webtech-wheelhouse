@@ -45,7 +45,7 @@ class MechanicsController < ApplicationController
   private
 
   def set_mechanic
-    @mechanic = Mechanic.includes(repairs: [ :bike, :customer, { photos_attachments: :blob } ]).find(params[:id])
+    @mechanic = Mechanic.includes(repairs: [ :bike, :customer, :rich_text_diagnosis, { photos_attachments: :blob } ]).find(params[:id])
   end
 
   def mechanic_params

@@ -21,6 +21,9 @@ class Repair < ApplicationRecord
     attachable.variant :large, resize_to_limit: [ 1000, 1000 ]
   end
 
+  # What the mechanic found, written with formatting. Optional: a repair just taken in has none.
+  has_rich_text :diagnosis
+
   # The repair's form writes its lines. A new line whose service is left empty is one of the spare
   # lines the form offers, so it is skipped; an existing line is taken off with _destroy.
   accepts_nested_attributes_for :repair_services, allow_destroy: true,

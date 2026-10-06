@@ -51,6 +51,14 @@
   <% end %>
 </dl>
 
+<h2 class="h4 mt-4">Diagnosis</h2>
+
+<% if @repair.diagnosis.present? %>
+  <%= @repair.diagnosis %>
+<% else %>
+  <p>No diagnosis written yet.</p>
+<% end %>
+
 <h2 class="h4 mt-4">Intake photos</h2>
 
 <%= render "photos", repair: @repair %>

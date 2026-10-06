@@ -21,4 +21,11 @@
     <% end %>
   </td>
   <td><%= repair.promised_on.strftime("%B %-d, %Y") %></td>
+  <td class="text-nowrap">
+    <% if repair.diagnosis.present? %>
+      <%= repair.diagnosis.to_plain_text.squish.truncate(50) %>
+    <% else %>
+      <span class="text-secondary">No diagnosis yet</span>
+    <% end %>
+  </td>
 </tr>

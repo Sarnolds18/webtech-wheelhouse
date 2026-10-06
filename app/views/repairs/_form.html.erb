@@ -59,6 +59,15 @@
   </fieldset>
 
   <fieldset class="mb-4">
+    <legend class="h5">Diagnosis</legend>
+
+    <%= form.label :diagnosis, "What the mechanic found", class: "form-label" %>
+    <%= form.rich_textarea :diagnosis, aria: { describedby: "repair_diagnosis_help" } %>
+    <div id="repair_diagnosis_help" class="form-text">Optional. Bold, lists, links and quotes are kept.</div>
+    <%= field_errors(form, :diagnosis) %>
+  </fieldset>
+
+  <fieldset class="mb-4">
     <legend class="h5">Quote</legend>
 
     <div class="row g-3">
