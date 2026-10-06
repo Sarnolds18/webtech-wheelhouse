@@ -15,7 +15,8 @@ class RepairsController < ApplicationController
   end
 
   def create
-    @repair = Repair.new(repair_params)
+    @repair = Repair.new
+    assign_repair_params
 
     if @repair.save
       redirect_to @repair, notice: "Repair ##{@repair.id} for bike #{@repair.bike.serial_number} was created."
@@ -30,7 +31,9 @@ class RepairsController < ApplicationController
   end
 
   def update
-    if @repair.update(repair_params)
+    assign_repair_params
+
+    if @repair.save
       redirect_to @repair, notice: "Repair ##{@repair.id} for bike #{@repair.bike.serial_number} was updated."
     else
       build_blank_lines
@@ -51,14 +54,24 @@ class RepairsController < ApplicationController
   private
 
   def set_repair
-    @repair = Repair.includes(:bike, :customer, :mechanic, repair_services: :service, invoices: []).find(params[:id])
+    @repair = Repair.includes(:bike, :customer, :mechanic, repair_services: :service, invoices: [])
+                    .with_attached_photos.find(params[:id])
   end
 
   def repair_params
     params.expect(repair: [ :bike_id, :mechanic_id, :state, :received_at, :promised_on,
                             :quoted_at, :quoted_amount, :quote_response, :responded_at,
                             :finished_at, :collected_at,
-                            repair_services_attributes: [ [ :id, :service_id, :charged_price, :_destroy ] ] ])
+                            repair_services_attributes: [ [ :id, :service_id, :charged_price, :_destroy ] ],
+                            photos: [] ])
+  end
+
+  # Photos chosen in the form are added to the ones the repair already has. Assigning them as an
+  # attribute would replace them all, and an empty file field would remove them all.
+  def assign_repair_params
+    @repair.assign_attributes(repair_params.except(:photos))
+    new_photos = Array(repair_params[:photos]).compact_blank
+    @repair.photos.attach(new_photos) if new_photos.any?
   end
 
   # The form works without JavaScript, so it offers spare empty lines: 3 on a new repair, 2 more on an

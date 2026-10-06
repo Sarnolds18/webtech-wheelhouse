@@ -45,6 +45,20 @@
   </fieldset>
 
   <fieldset class="mb-4">
+    <legend class="h5">Intake photos</legend>
+
+    <%= form.label :photos, "Add photos", class: "form-label" %>
+    <%= form.file_field :photos, multiple: true, accept: Repair::PHOTO_TYPES.join(","),
+                                 class: field_class(form, :photos),
+                                 aria: { describedby: "repair_photos_help" } %>
+    <div id="repair_photos_help" class="form-text">
+      JPEG, PNG or WebP, up to <%= Repair::PHOTO_MAX_SIZE / 1.megabyte %> MB each. Several can be chosen at
+      once; they are added to the photos the repair already has.
+    </div>
+    <%= field_errors(form, :photos) %>
+  </fieldset>
+
+  <fieldset class="mb-4">
     <legend class="h5">Quote</legend>
 
     <div class="row g-3">

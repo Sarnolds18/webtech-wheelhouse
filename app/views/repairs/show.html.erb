@@ -51,6 +51,26 @@
   <% end %>
 </dl>
 
+<h2 class="h4 mt-4">Intake photos</h2>
+
+<% if @repair.photos.attached? %>
+  <div class="row g-3 mb-3">
+    <% @repair.photos.each.with_index(1) do |photo, number| %>
+      <div class="col-6 col-md-4 col-lg-3">
+        <figure class="figure mb-0">
+          <%= link_to url_for(photo) do %>
+            <%= image_tag url_for(photo), class: "figure-img img-fluid img-thumbnail",
+                          alt: "Intake photo #{number} of repair ##{@repair.id}, bike #{@repair.bike.serial_number}" %>
+          <% end %>
+          <figcaption class="figure-caption">Photo <%= number %></figcaption>
+        </figure>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p>No intake photos yet.</p>
+<% end %>
+
 <h2 class="h4 mt-4">Services charged</h2>
 
 <% if @repair.repair_services.any? %>

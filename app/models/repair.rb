@@ -7,6 +7,13 @@ class Repair < ApplicationRecord
   has_many :invoices, dependent: :destroy
   has_many :services, through: :repair_services
 
+  # Photos taken when the bike came in. Only the image types the shop's phones produce are
+  # accepted, up to a size limit; both are checked on the photos being added, not on old ones.
+  PHOTO_TYPES = %w[ image/jpeg image/png image/webp ].freeze
+  PHOTO_MAX_SIZE = 10.megabytes
+
+  has_many_attached :photos
+
   # The repair's form writes its lines. A new line whose service is left empty is one of the spare
   # lines the form offers, so it is skipped; an existing line is taken off with _destroy.
   accepts_nested_attributes_for :repair_services, allow_destroy: true,
@@ -43,6 +50,7 @@ class Repair < ApplicationRecord
 
   validate :handback_and_promised_day_not_before_received
   validate :answer_recorded_once_customer_has_answered
+  validate :photos_are_images_within_size_limit
 
   # Errors on a line are keyed "repair_services[1].charged_price"; this names them the way the form
   # does, as "Line 2 charged price", so the counter knows which line to fix.
@@ -86,6 +94,21 @@ class Repair < ApplicationRecord
 
     if (approved? || declined?) && quote_response.blank?
       errors.add(:quote_response, "must be recorded once the customer has answered")
+    end
+  end
+
+  def photos_are_images_within_size_limit
+    photos.attachments.select(&:new_record?).each do |photo|
+      name = photo.blob.filename
+
+      unless PHOTO_TYPES.include?(photo.blob.content_type)
+        errors.add(:photos, "\"#{name}\" is not a JPEG, PNG or WebP image")
+      end
+
+      if photo.blob.byte_size > PHOTO_MAX_SIZE
+        size = (photo.blob.byte_size.to_f / 1.megabyte).round(1)
+        errors.add(:photos, "\"#{name}\" is #{size} MB; the limit is #{PHOTO_MAX_SIZE / 1.megabyte} MB")
+      end
     end
   end
 end
