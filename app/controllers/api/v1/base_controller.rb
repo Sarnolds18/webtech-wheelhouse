@@ -5,9 +5,14 @@ module Api
     class BaseController < ActionController::API
       include ActionController::HttpAuthentication::Token::ControllerMethods
 
+      # Raised by an action when the request asks for something that does not exist, such as a filter
+      # value that is not a state. Its message is the error the client reads.
+      class BadRequest < StandardError; end
+
       rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
       rescue_from ActionController::ParameterMissing, with: :parameter_missing
       rescue_from ActionDispatch::Http::Parameters::ParseError, with: :body_not_json
+      rescue_from BadRequest, with: :bad_request
 
       private
 
@@ -26,6 +31,12 @@ module Api
         expected.present? && ActiveSupport::SecurityUtils.secure_compare(token, expected)
       end
 
+      # Every price in every document travels the same way: a string with two decimals, the exact value
+      # of the decimal column (docs/api.md). A JSON number would go through a float.
+      def money(amount)
+        ActiveSupport::NumberHelper.number_to_rounded(amount, precision: 2)
+      end
+
       def render_errors(messages, status)
         render json: { errors: messages }, status: status
       end
@@ -41,6 +52,10 @@ module Api
 
       def body_not_json
         render_errors [ "The body is not valid JSON" ], :bad_request
+      end
+
+      def bad_request(exception)
+        render_errors [ exception.message ], :bad_request
       end
     end
   end

@@ -32,14 +32,13 @@ module Api
         params.expect(service: [ :name, :price, :category ])
       end
 
-      # One shape for every action, so a client parses one document. The price travels as a string with
-      # its two decimals, the exact value of the column (docs/api.md); a JSON number would be a float.
-      # times_charged counts the repairs the service was charged on, from the lines already loaded.
+      # One shape for every action, so a client parses one document. times_charged counts the repairs
+      # the service was charged on, from the lines already loaded.
       def service_document(service)
         {
           id: service.id,
           name: service.name,
-          price: ActiveSupport::NumberHelper.number_to_rounded(service.price, precision: 2),
+          price: money(service.price),
           category: service.category,
           times_charged: service.repair_services.map(&:repair_id).uniq.size
         }
