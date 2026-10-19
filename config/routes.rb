@@ -18,7 +18,7 @@ Rails.application.routes.draw do
   # program needs no form, so there is no new and no edit.
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      resources :services, only: [ :index, :show ]
+      resources :services, only: [ :index, :show, :create ]
     end
   end
 end
