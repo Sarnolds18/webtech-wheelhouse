@@ -14,6 +14,12 @@ module Api
       rescue_from ActionDispatch::Http::Parameters::ParseError, with: :body_not_json
       rescue_from BadRequest, with: :bad_request
 
+      # The catch-all route at the end of the API's routes lands here: a path or a verb the API does not
+      # have gets the same error shape as everything else.
+      def route_not_found
+        render_errors [ "No route matches #{request.method} #{request.path}" ], :not_found
+      end
+
       private
 
       # The accounting program and the owner's script send "Authorization: Bearer <token>". The token is

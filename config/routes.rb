@@ -20,6 +20,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :services, only: [ :index, :show, :create ]
       resources :repairs, only: [ :index, :show ]
+
+      # Last: any other path or verb under /api/v1 answers the JSON 404, not Rails' HTML page.
+      match "*path", to: "base#route_not_found", via: :all, format: false
     end
   end
 end
