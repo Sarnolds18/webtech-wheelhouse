@@ -18,4 +18,10 @@ class User < ApplicationRecord
   # has_secure_password ignores a blank password on an update, so the reset form would "save" nothing.
   validates :password, presence: true, on: :password_reset
   validates :mechanic_id, uniqueness: { message: "already has an account" }, allow_nil: true
+
+  # How the pages name the person behind the account: the staff member's name, or the email address
+  # when the account belongs to no one on the staff.
+  def display_name
+    mechanic&.name || email_address
+  end
 end

@@ -14,7 +14,8 @@
   <body>
     <nav class="navbar navbar-expand-lg bg-white border-bottom">
       <div class="container">
-        <%= link_to root_path, class: "navbar-brand fw-bold" do %>
+        <%# A visitor's bar links to no page that requires a session, so their brand goes to the price list. %>
+        <%= link_to (authenticated? ? root_path : services_path), class: "navbar-brand fw-bold" do %>
           <i class="bi bi-bicycle me-2" aria-hidden="true"></i>Wheelhouse
         <% end %>
 
@@ -32,17 +33,21 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="navbar-nav ms-auto">
 
+            <% if authenticated? %>
             <li class="nav-item">
               <%= link_to "Home",
                   root_path,
                   class: "nav-link #{'text-primary fw-semibold' if current_page?(root_path)}" %>
             </li>
+            <% end %>
 
             <li class="nav-item">
               <%= link_to "Services",
                   services_path,
                   class: "nav-link #{'text-primary fw-semibold' if current_page?(services_path)}" %>
             </li>
+
+            <% if authenticated? %>
 
             <li class="nav-item">
               <%= link_to "Customers",
@@ -79,8 +84,23 @@
                   about_path,
                   class: "nav-link #{'text-primary fw-semibold' if current_page?(about_path)}" %>
             </li>
+            <% end %>
 
           </ul>
+
+          <%# Who is at the keyboard, and a control to leave. Signing out is a DELETE, never a GET. %>
+          <div class="d-flex flex-wrap align-items-center gap-2 ms-lg-4 mt-2 mt-lg-0">
+            <% if authenticated? %>
+              <span class="navbar-text">
+                <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= Current.user.display_name %>
+                <span class="badge text-bg-light border ms-1"><%= Current.user.role.humanize %></span>
+              </span>
+              <%= button_to "Sign out", session_path, method: :delete, class: "btn btn-sm btn-outline-secondary",
+                                                      form_class: "d-inline" %>
+            <% else %>
+              <%= link_to "Sign in", new_session_path, class: "btn btn-sm btn-primary" %>
+            <% end %>
+          </div>
         </div>
       </div>
     </nav>
