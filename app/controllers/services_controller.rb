@@ -1,4 +1,7 @@
 class ServicesController < ApplicationController
+  # The wall list is public: anyone can read the list and a service's page. Creating, editing and
+  # deleting a service need a session.
+  allow_unauthenticated_access only: [ :index, :show ]
   before_action :set_service, only: [ :show, :edit, :update, :destroy ]
 
   def index

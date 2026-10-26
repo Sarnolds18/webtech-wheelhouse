@@ -1,5 +1,6 @@
 class PasswordsController < ApplicationController
-  allow_unauthenticated_access
+  # Whoever forgot their password has no session: every page of the flow is open, named one by one.
+  allow_unauthenticated_access only: %i[ new create edit update ]
   before_action :set_user_by_token, only: %i[ edit update ]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: "Try again later." }
 
