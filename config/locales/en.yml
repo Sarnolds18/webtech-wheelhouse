@@ -40,6 +40,11 @@ en:
       service:
         # Read by the refused-destroy message: "It still has charges on repairs."
         repair_services: "Charges on repairs"
+      mechanic:
+        # Read by the refused-destroy message: "It has an account."
+        user: "an account"
+      user:
+        mechanic_id: "Staff member"
     errors:
       models:
         repair:
@@ -51,3 +56,4 @@ en:
         # Shown when a dependent: :restrict_with_error refuses a destroy, e.g. "It still has bikes."
         restrict_dependent_destroy:
           has_many: "It still has %{record}."
+          has_one: "It has %{record}."

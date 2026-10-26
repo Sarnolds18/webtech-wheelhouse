@@ -25,3 +25,10 @@ The list goes up every January, and the shop sometimes charges a regular less th
 **What I assumed.** He does not. `repair_services.charged_price` stores what was actually charged and nothing else. Old invoices are frozen and discounts are possible, which is everything the description asks for.
 
 **What changes if the answer is yes.** `services.price` is no longer enough. Prices need a `service_prices` table with a validity range, so every line can be compared against the list price in force on the day of the repair. The difference between the two is then the discount, and it becomes a real number instead of a guess.
+## 4. When a new account is created, which role does it get?
+
+Every account has a role: owner, mechanic or counter. A new account gets one before anyone has said who the person is, so the default has to be the one that can do the least harm.
+
+**What I decided.** The default is `mechanic`. The mechanic works on the bike in front of them: reads the repair, writes the diagnosis, does the work. The person at the counter takes the customer in, holds their phone number, quotes, hands the bike back and charges for it — customers' data and money. The owner does everything. Of the three, the mechanic needs the least, so an account nobody has looked at yet starts there, and the owner raises it from the seed or the console.
+
+**What changes if the answer is different.** Only the default of the `role` column, in a migration. The accounts that already exist keep their role.
