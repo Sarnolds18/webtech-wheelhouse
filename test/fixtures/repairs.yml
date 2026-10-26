@@ -1,29 +1,20 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+received:
+  bike: javiera_marlin
+  customer: javiera
+  state: received
+  received_at: <%= 1.day.ago.to_fs(:db) %>
+  promised_on: <%= 3.days.from_now.to_date %>
 
-one:
-  bike_id: 
-  customer_id: 
-  mechanic_id: 
-  state: MyString
-  received_at: 2026-09-07 11:42:03
-  promised_on: 2026-09-07
-  quoted_at: 2026-09-07 11:42:03
-  quoted_amount: 9.99
-  quote_response: MyString
-  responded_at: 2026-09-07 11:42:03
-  finished_at: 2026-09-07 11:42:03
-  collected_at: 2026-09-07 11:42:03
-
-two:
-  bike_id: 
-  customer_id: 
-  mechanic_id: 
-  state: MyString
-  received_at: 2026-09-07 11:42:03
-  promised_on: 2026-09-07
-  quoted_at: 2026-09-07 11:42:03
-  quoted_amount: 9.99
-  quote_response: MyString
-  responded_at: 2026-09-07 11:42:03
-  finished_at: 2026-09-07 11:42:03
-  collected_at: 2026-09-07 11:42:03
+collected:
+  bike: diego_aspect
+  customer: diego
+  mechanic: fuentes
+  state: collected
+  received_at: <%= 10.days.ago.to_fs(:db) %>
+  promised_on: <%= 7.days.ago.to_date %>
+  quoted_at: <%= 9.days.ago.to_fs(:db) %>
+  quoted_amount: 8000
+  quote_response: approved
+  responded_at: <%= 9.days.ago.to_fs(:db) %>
+  finished_at: <%= 8.days.ago.to_fs(:db) %>
+  collected_at: <%= 7.days.ago.to_fs(:db) %>

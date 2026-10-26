@@ -1,7 +1,5 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+fuentes:
+  name: Matías Fuentes
 
-one:
-  name: MyString
-
-two:
-  name: MyString
+vidal:
+  name: Camila Vidal

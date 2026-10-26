@@ -1,11 +1,9 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+tune_up:
+  name: Basic tune-up
+  price: 25000
+  category: Tune-ups
 
-one:
-  name: MyString
-  price: 9.99
-  category: MyString
-
-two:
-  name: MyString
-  price: 9.99
-  category: MyString
+tube:
+  name: Inner tube replacement
+  price: 8000
+  category: Tires & tubes

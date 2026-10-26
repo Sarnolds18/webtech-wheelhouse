@@ -1,11 +1,4 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  repair_id: 
-  number: MyString
-  issued_at: 2026-09-07 11:42:07
-
-two:
-  repair_id: 
-  number: MyString
-  issued_at: 2026-09-07 11:42:07
+collected:
+  repair: collected
+  number: F-0001
+  issued_at: <%= 7.days.ago.to_fs(:db) %>

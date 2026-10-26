@@ -1,11 +1,9 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+javiera_marlin:
+  serial_number: WTU123A4567B
+  bike_model: marlin
+  customer: javiera
 
-one:
-  serial_number: MyString
-  bike_model_id: 
-  customer_id: 
-
-two:
-  serial_number: MyString
-  bike_model_id: 
-  customer_id: 
+diego_aspect:
+  serial_number: SCA987Z6543Y
+  bike_model: aspect
+  customer: diego

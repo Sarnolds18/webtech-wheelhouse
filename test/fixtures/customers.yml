@@ -1,9 +1,7 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+javiera:
+  name: Javiera Muñoz
+  phone: "+56 9 1111 1111"
 
-one:
-  name: MyString
-  phone: MyString
-
-two:
-  name: MyString
-  phone: MyString
+diego:
+  name: Diego Pérez
+  phone: "+56 9 2222 2222"

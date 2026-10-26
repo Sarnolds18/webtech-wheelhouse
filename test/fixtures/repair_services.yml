@@ -1,11 +1,9 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+received_tune_up:
+  repair: received
+  service: tune_up
+  charged_price: 25000
 
-one:
-  repair_id: 
-  service_id: 
-  charged_price: 9.99
-
-two:
-  repair_id: 
-  service_id: 
-  charged_price: 9.99
+collected_tube:
+  repair: collected
+  service: tube
+  charged_price: 8000
