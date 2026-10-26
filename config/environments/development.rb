@@ -31,8 +31,12 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  # The application only runs here, and its emails never leave the machine: no SMTP server, no provider,
+  # no credentials. Every email is written to tmp/mails/, one file per recipient (each new email to the
+  # same address is added at the end of that file). A delivery that fails raises instead of vanishing.
+  config.action_mailer.delivery_method = :file
+  config.action_mailer.file_settings = { location: Rails.root.join("tmp/mails") }
+  config.action_mailer.raise_delivery_errors = true
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false
