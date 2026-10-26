@@ -1,6 +1,15 @@
-<p>
-  You can reset your password on
-  <%= link_to "this password reset page", edit_password_url(@user.password_reset_token) %>.
+<p>Hello,</p>
 
-  This link will expire in <%= distance_of_time_in_words(0, @user.password_reset_token_expires_in) %>.
+<p>
+  Someone asked to change the password of the Wheelhouse account <%= @user.email_address %>.
+  You can choose a new one on
+  <%= link_to "this page", edit_password_url(@user.password_reset_token) %>.
 </p>
+
+<p>
+  This link will expire in <%= distance_of_time_in_words(0, @user.password_reset_token_expires_in) %>,
+  and stops working once the password is changed. If you did not ask for it, ignore this email: your
+  password stays the same.
+</p>
+
+<p>— Wheelhouse</p>

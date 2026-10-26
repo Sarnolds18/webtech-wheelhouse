@@ -1,8 +1,21 @@
-<h1>Forgot your password?</h1>
+<% content_for :title, "Forgot your password?" %>
 
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-5">
+    <h1>Forgot your password?</h1>
+    <p class="text-secondary">Write the email address of your account and Wheelhouse will send you a link to choose a new one.</p>
 
-<%= form_with url: passwords_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.submit "Email reset instructions" %>
-<% end %>
+    <%= form_with url: passwords_path do |form| %>
+      <div class="mb-3">
+        <%= form.label :email_address, "Email address", class: "form-label" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username",
+                                             value: params[:email_address], class: "form-control" %>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <%= form.submit "Email me a link", class: "btn btn-primary" %>
+        <%= link_to "Cancel", new_session_path, class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

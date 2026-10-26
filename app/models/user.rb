@@ -15,5 +15,7 @@ class User < ApplicationRecord
                             format: { with: URI::MailTo::EMAIL_REGEXP, allow_blank: true }
   # has_secure_password already requires a password on create; nil is an update that does not change it.
   validates :password, length: { minimum: PASSWORD_MINIMUM_LENGTH }, allow_nil: true
+  # has_secure_password ignores a blank password on an update, so the reset form would "save" nothing.
+  validates :password, presence: true, on: :password_reset
   validates :mechanic_id, uniqueness: { message: "already has an account" }, allow_nil: true
 end

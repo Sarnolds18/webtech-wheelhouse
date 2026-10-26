@@ -36,6 +36,10 @@ en:
       mechanic:
         one: "Staff member"
         other: "Staff"
+      # The people of the workshop sign in with an account; "user" is only the table's name.
+      user:
+        one: "Account"
+        other: "Accounts"
     attributes:
       service:
         # Read by the refused-destroy message: "It still has charges on repairs."

@@ -11,18 +11,22 @@ class PasswordsController < ApplicationController
       PasswordsMailer.reset(user).deliver_later
     end
 
-    redirect_to new_session_path, notice: "Password reset instructions sent (if user with that email address exists)."
+    # The same answer whether the address has an account or not, so the page tells nobody which ones do.
+    redirect_to new_session_path, notice: "If that email address has an account, a link to choose a new password is on its way."
   end
 
   def edit
   end
 
+  # A refused password ends as every refused write: 422, the form again, the messages next to the fields.
   def update
-    if @user.update(params.permit(:password, :password_confirmation))
+    @user.assign_attributes(params.expect(user: [ :password, :password_confirmation ]))
+
+    if @user.save(context: :password_reset)
       @user.sessions.destroy_all
-      redirect_to new_session_path, notice: "Password has been reset."
+      redirect_to new_session_path, notice: "Your password has been changed. Sign in with the new one."
     else
-      redirect_to edit_password_path(params[:token]), alert: "Passwords did not match."
+      render :edit, status: :unprocessable_entity
     end
   end
 
