@@ -3,7 +3,10 @@
 # Run with `bin/rails db:seed` (or `bin/rails db:setup` on a fresh database, which also creates
 # the database and loads the schema). Safe to run more than once: it clears its own tables first
 # in dependency order, so the row counts never grow on a second run. That includes the tables of
-# Active Storage and Action Text, which hold the repairs' intake photos and diagnoses.
+# Active Storage and Action Text, which hold the repairs' intake photos and diagnoses, and the
+# accounts with their sessions.
+#
+# The accounts and their passwords are for development only; the README lists them.
 
 ActiveRecord::Base.transaction do
   ActionText::RichText.delete_all
@@ -13,7 +16,9 @@ ActiveRecord::Base.transaction do
 
   RepairService.delete_all
   Invoice.delete_all
-  Repair.delete_all
+  Repair.delete_all # before the accounts: a repair points to the account that took it in
+  Session.delete_all
+  User.delete_all # before the staff: an account points to its member of the staff
   Bike.delete_all
   Service.delete_all
   Mechanic.delete_all
@@ -26,7 +31,28 @@ ActiveRecord::Base.transaction do
     fuentes: Mechanic.create!(name: "Matías Fuentes"),
     rojas: Mechanic.create!(name: "Ignacia Rojas"),
     soto: Mechanic.create!(name: "Benjamín Soto"),
-    vidal: Mechanic.create!(name: "Camila Vidal") # the person at the counter
+    vidal: Mechanic.create!(name: "Camila Vidal"), # the person at the counter
+    lagos: Mechanic.create!(name: "Patricia Lagos") # the owner
+  }
+
+  # --- Accounts ----------------------------------------------------------------
+  #
+  # One for each member of the staff, with the role of what they do, and one that belongs to no one
+  # on the staff and has the default role, as an account made on the sign-up page would. Each has its
+  # own password.
+
+  accounts = {
+    lagos: User.create!(email_address: "patricia@wheelhouse.cl", password: "owner-lagos-2026",
+                        role: "owner", mechanic: mechanics[:lagos]),
+    vidal: User.create!(email_address: "camila@wheelhouse.cl", password: "counter-vidal-2026",
+                        role: "counter", mechanic: mechanics[:vidal]),
+    fuentes: User.create!(email_address: "matias@wheelhouse.cl", password: "mechanic-fuentes-2026",
+                          role: "mechanic", mechanic: mechanics[:fuentes]),
+    rojas: User.create!(email_address: "ignacia@wheelhouse.cl", password: "mechanic-rojas-2026",
+                        role: "mechanic", mechanic: mechanics[:rojas]),
+    soto: User.create!(email_address: "benjamin@wheelhouse.cl", password: "mechanic-soto-2026",
+                       role: "mechanic", mechanic: mechanics[:soto]),
+    guest: User.create!(email_address: "nueva@wheelhouse.cl", password: "no-staff-yet-2026")
   }
 
   # --- Services (the wall list) -----------------------------------------------
@@ -274,6 +300,18 @@ ActiveRecord::Base.transaction do
   )
   add_services.call(r16, r16_charges.to_a)
 
+  # --- Who took each repair in ------------------------------------------------------
+  #
+  # Mostly the counter, sometimes the owner or a mechanic when the counter was busy. R2, R14 and R15
+  # came in before the workshop had accounts, so they record no one.
+
+  {
+    r1 => :vidal, r3 => :vidal, r4 => :vidal, r5 => :lagos, r6 => :vidal, r7 => :soto, r8 => :vidal,
+    r9 => :lagos, r10 => :vidal, r11 => :fuentes, r12 => :vidal, r13 => :vidal, r16 => :rojas
+  }.each do |repair, account|
+    repair.update!(taken_in_by: accounts.fetch(account))
+  end
+
   # --- Intake photos ----------------------------------------------------------
   #
   # The image files are in db/seeds/ (credits in db/seeds/CREDITS.md). Each file is stored once and
@@ -389,7 +427,7 @@ ActiveRecord::Base.transaction do
 end
 
 puts "Seeded: #{Customer.count} customers, #{BikeModel.count} bike models, #{Bike.count} bikes, " \
-     "#{Mechanic.count} staff, #{Service.count} services, #{Repair.count} repairs, " \
+     "#{Mechanic.count} staff, #{User.count} accounts, #{Service.count} services, #{Repair.count} repairs, " \
      "#{RepairService.count} repair services, #{Invoice.count} invoices, " \
      "#{ActiveStorage::Attachment.count} intake photos (#{ActiveStorage::Blob.count} files), " \
      "#{ActionText::RichText.count} diagnoses."

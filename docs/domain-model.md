@@ -63,6 +63,7 @@ Table repairs {
   responded_at datetime
   finished_at datetime
   collected_at datetime
+  taken_in_by_id integer
   created_at datetime [not null]
   updated_at datetime [not null]
 }
@@ -85,6 +86,25 @@ Table invoices {
   updated_at datetime [not null]
 }
 
+Table users {
+  id integer [pk, increment]
+  email_address varchar [not null, note: 'unique without regard to case: index on lower(email_address)']
+  password_digest varchar [not null]
+  role varchar [not null, default: 'mechanic']
+  mechanic_id integer [unique]
+  created_at datetime [not null]
+  updated_at datetime [not null]
+}
+
+Table sessions {
+  id integer [pk, increment]
+  user_id integer [not null]
+  ip_address varchar
+  user_agent varchar
+  created_at datetime [not null]
+  updated_at datetime [not null]
+}
+
 Ref: bikes.bike_model_id > bike_models.id
 Ref: bikes.customer_id > customers.id
 Ref: repairs.bike_id > bikes.id
@@ -93,6 +113,9 @@ Ref: repairs.mechanic_id > mechanics.id
 Ref: repair_services.repair_id > repairs.id
 Ref: repair_services.service_id > services.id
 Ref: invoices.repair_id - repairs.id
+Ref: repairs.taken_in_by_id > users.id
+Ref: users.mechanic_id - mechanics.id
+Ref: sessions.user_id > users.id
 ```
 
 *(The `Ref:` lines are dbdiagram.io's notation for the relationship a foreign-key-style column implies —
@@ -136,6 +159,17 @@ The photos and the diagnosis deferred above have arrived, without a `photos` tab
   has one, holding the formatted text.
 
 `repairs.customer_id` is the customer who brought the bike in on that visit. `bikes.customer_id` is who owns it now. They are usually the same person and differ once the bike is sold, which is exactly the case the owner cares about.
+
+## Changes in Lab 11: accounts
+
+- **`users` and `sessions`** come from Rails' own authentication generator. `users` keeps a bcrypt
+  digest of the password, never the password. `role` is `owner`, `mechanic` or `counter`, defaulting to
+  `mechanic` (why: `docs/decisions.md`, question 4).
+- **`users.mechanic_id`**: an account may belong to one member of the staff (`mechanics`, which holds
+  the owner and the counter as well as the mechanics); the unique index refuses a second account for
+  the same member. The owner is now a row of `mechanics` too, so the seed can join an account to them.
+- **`repairs.taken_in_by_id`**: the account signed in when the repair was created. Nullable, because
+  the repairs from before accounts existed record no one.
 
 ## Lifecycle of a repair
 

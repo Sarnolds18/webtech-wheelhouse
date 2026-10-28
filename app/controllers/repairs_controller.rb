@@ -2,7 +2,7 @@ class RepairsController < ApplicationController
   before_action :set_repair, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @repairs = Repair.newest_first.includes(:bike, :customer).with_attached_photos.with_rich_text_diagnosis
+    @repairs = Repair.newest_first.includes(:bike, :customer, taken_in_by: :mechanic).with_attached_photos.with_rich_text_diagnosis
   end
 
   def show
@@ -17,6 +17,8 @@ class RepairsController < ApplicationController
   def create
     @repair = Repair.new
     assign_repair_params
+    # From the session, never from the form: whoever is signed in took the repair in.
+    @repair.taken_in_by = Current.user
 
     if @repair.save
       redirect_to @repair, notice: "Repair ##{@repair.id} for bike #{@repair.bike.serial_number} was created."
@@ -54,7 +56,7 @@ class RepairsController < ApplicationController
   private
 
   def set_repair
-    @repair = Repair.includes(:bike, :customer, :mechanic, repair_services: :service, invoices: [])
+    @repair = Repair.includes(:bike, :customer, :mechanic, { taken_in_by: :mechanic }, repair_services: :service, invoices: [])
                     .with_attached_photos.with_rich_text_diagnosis_and_embeds.find(params[:id])
   end
 

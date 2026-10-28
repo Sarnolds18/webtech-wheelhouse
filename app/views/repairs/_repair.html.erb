@@ -31,4 +31,11 @@
       <span class="text-secondary">No diagnosis yet</span>
     <% end %>
   </td>
+  <td>
+    <% if repair.taken_in_by %>
+      <%= repair.taken_in_by.display_name %>
+    <% else %>
+      <span class="text-secondary">Not recorded</span>
+    <% end %>
+  </td>
 </tr>

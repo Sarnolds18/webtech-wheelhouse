@@ -2,6 +2,9 @@ class Repair < ApplicationRecord
   belongs_to :bike
   belongs_to :customer
   belongs_to :mechanic, optional: true
+  # The account signed in when the repair was created; set by the controller, never by the form.
+  # Optional because the repairs from before accounts existed have none.
+  belongs_to :taken_in_by, class_name: "User", optional: true
 
   has_many :repair_services, -> { in_order_added }, dependent: :destroy, index_errors: true
   has_many :invoices, dependent: :destroy

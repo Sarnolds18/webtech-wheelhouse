@@ -1,7 +1,7 @@
 # Wheelhouse
 
 Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its Rails application: the
-public pages — **Home**, **Services** (the shop's price list), **Visiting the workshop** (location, hours
+pages about the shop — **Home**, **Services** (the shop's price list), **Visiting the workshop** (location, hours
 and what happens when a bike comes in) and **About** — and the pages the shop works with: **Customers**,
 **Bikes**, **Repairs** and **Staff**. Every one of these records can be listed, viewed, created, edited
 and deleted from the browser. A repair's form also records the services charged on it, the photos
@@ -12,8 +12,12 @@ Wheelhouse also answers programs that are not a browser, through a JSON API unde
 list is public, and the shop's website — on another origin — shows it; reading repairs and adding a
 service need a token. See [The API](#the-api) below.
 
-There is no login yet: every page is open to anyone who can reach the app. See `docs/` for the domain
-model, user stories, wireframes and open design decisions the application is built towards.
+The people of the workshop sign in with an email address and a password. Only the price list
+(**Services**, its list and each service's page) and the sign-in, sign-up and forgotten-password pages
+are open; every other page asks to sign in first, and then returns to the page that was asked for. Each
+account has a role (owner, mechanic or counter), and a repair records the account that took it in. See
+`docs/` for the domain model, user stories, wireframes and open design decisions the application is
+built towards.
 
 - [`docs/domain-model.md`](docs/domain-model.md) — the database schema, and how it has changed since it
   was first designed
@@ -53,6 +57,24 @@ The seed attaches intake photos to most repairs, from the image files in `db/see
 `db/seeds/CREDITS.md`). Uploaded files are stored on disk in `storage/`, which git ignores; running the
 seed again replaces them rather than adding more.
 
+## Accounts of the seed (development only)
+
+The seed creates these accounts. They exist only in the development database, for trying the app;
+their passwords are written here for that reason and are not used anywhere else.
+
+| Email address | Password | Role | Member of the staff |
+|---|---|---|---|
+| `patricia@wheelhouse.cl` | `owner-lagos-2026` | owner | Patricia Lagos |
+| `camila@wheelhouse.cl` | `counter-vidal-2026` | counter | Camila Vidal |
+| `matias@wheelhouse.cl` | `mechanic-fuentes-2026` | mechanic | Matías Fuentes |
+| `ignacia@wheelhouse.cl` | `mechanic-rojas-2026` | mechanic | Ignacia Rojas |
+| `benjamin@wheelhouse.cl` | `mechanic-soto-2026` | mechanic | Benjamín Soto |
+| `nueva@wheelhouse.cl` | `no-staff-yet-2026` | mechanic (the default) | none |
+
+A new account can also be made on the **Sign up** page, linked from the sign-in page. It gets the
+default role; the role and the member of the staff of an account are changed from the seed or the
+console (`bin/rails console`), never from a page.
+
 ## Running the app
 
 ```bash
@@ -62,6 +84,22 @@ bin/dev
 This starts the Rails server and the Sass watcher together. Open **http://localhost:3000**.
 
 (`bin/rails server` on its own also serves the app, but does not rebuild the CSS.)
+
+## Emails in development
+
+The app sends two emails: the link to choose a new password (**Forgot your password?** on the sign-in
+page) and the welcome email of a new account. Both are sent by a job, after the response. In development
+nothing is sent to a mail server: every email is **written to a file in `tmp/mails/`**, one file per
+recipient, named after the address (for example `tmp/mails/camila@wheelhouse.cl`). Each new email to the
+same address is added at the end of its file, with its text part and its HTML part.
+
+```bash
+cat tmp/mails/camila@wheelhouse.cl
+```
+
+The password email's link is a full `http://localhost:3000/...` address: open it in the browser while
+the app is running to choose the new password, then sign in with it. The emails can also be seen without
+sending them at **http://localhost:3000/rails/mailers**.
 
 ## The API
 

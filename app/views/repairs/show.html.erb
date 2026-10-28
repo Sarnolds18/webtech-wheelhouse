@@ -20,6 +20,9 @@
   <dt class="col-sm-3">Mechanic</dt>
   <dd class="col-sm-9"><%= @repair.mechanic&.name || "Not assigned yet" %></dd>
 
+  <dt class="col-sm-3">Taken in by</dt>
+  <dd class="col-sm-9"><%= @repair.taken_in_by&.display_name || "Not recorded (taken in before accounts existed)" %></dd>
+
   <dt class="col-sm-3">State</dt>
   <dd class="col-sm-9"><span class="badge text-bg-secondary"><%= @repair.state.humanize %></span></dd>
 
