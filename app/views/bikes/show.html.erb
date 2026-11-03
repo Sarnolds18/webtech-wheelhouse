@@ -4,9 +4,13 @@
   <h1 class="mb-0"><%= @bike.serial_number %></h1>
 
   <div class="d-flex gap-2">
-    <%= link_to "Edit", edit_bike_path(@bike), class: "btn btn-primary" %>
-    <%= button_to "Delete", @bike, method: :delete, class: "btn btn-outline-danger",
-                  form: { data: { turbo_confirm: "Delete bike #{@bike.serial_number}?" } } %>
+    <% if policy(@bike).edit? %>
+      <%= link_to "Edit", edit_bike_path(@bike), class: "btn btn-primary" %>
+    <% end %>
+    <% if policy(@bike).destroy? %>
+      <%= button_to "Delete", @bike, method: :delete, class: "btn btn-outline-danger",
+                    form: { data: { turbo_confirm: "Delete bike #{@bike.serial_number}?" } } %>
+    <% end %>
   </div>
 </div>
 
@@ -15,15 +19,17 @@
   <dd class="col-sm-9"><%= @bike.bike_model.brand %> <%= @bike.bike_model.name %></dd>
 
   <dt class="col-sm-3">Owner</dt>
-  <dd class="col-sm-9"><%= link_to @bike.customer.name, customer_path(@bike.customer) %></dd>
+  <dd class="col-sm-9"><%= link_to_if policy(@bike.customer).show?, @bike.customer.name, customer_path(@bike.customer) %></dd>
 </dl>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4 mb-2">
   <h2 class="h4 mb-0">Repairs</h2>
-  <%= link_to "New repair", new_repair_path(bike_id: @bike.id), class: "btn btn-sm btn-outline-primary" %>
+  <% if policy(Repair).new? %>
+    <%= link_to "New repair", new_repair_path(bike_id: @bike.id), class: "btn btn-sm btn-outline-primary" %>
+  <% end %>
 </div>
 
-<% if @bike.repairs.any? %>
+<% if @repairs.any? %>
   <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
       <thead>
@@ -40,7 +46,7 @@
       </thead>
 
       <tbody>
-        <%= render @bike.repairs %>
+        <%= render @repairs %>
       </tbody>
     </table>
   </div>

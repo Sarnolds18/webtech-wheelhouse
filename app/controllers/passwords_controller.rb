@@ -1,4 +1,6 @@
 class PasswordsController < ApplicationController
+  # Public: signing in, out and up and a forgotten password ask no policy (docs/decisions.md, 5).
+  skip_after_action :verify_authorized
   # Whoever forgot their password has no session: every page of the flow is open, named one by one.
   allow_unauthenticated_access only: %i[ new create edit update ]
   before_action :set_user_by_token, only: %i[ edit update ]

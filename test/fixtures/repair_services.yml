@@ -7,3 +7,8 @@ collected_tube:
   repair: collected
   service: tube
   charged_price: 8000
+
+fuentes_open_tube:
+  repair: fuentes_open
+  service: tube
+  charged_price: 8000

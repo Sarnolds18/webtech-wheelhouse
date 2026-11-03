@@ -15,8 +15,9 @@
       </div>
     <% end %>
   </td>
-  <td><%= link_to repair.bike.serial_number, bike_path(repair.bike) %></td>
-  <td><%= link_to repair.customer.name, customer_path(repair.customer) %></td>
+  <%# Everyone who reads the repair sees its bike and customer; they are links only for who may open them. %>
+  <td><%= link_to_if policy(repair.bike).show?, repair.bike.serial_number, bike_path(repair.bike) %></td>
+  <td><%= link_to_if policy(repair.customer).show?, repair.customer.name, customer_path(repair.customer) %></td>
   <td>
     <span class="badge text-bg-secondary"><%= repair.state.humanize %></span>
     <% if repair.overdue? %>

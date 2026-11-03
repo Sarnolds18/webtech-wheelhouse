@@ -4,15 +4,19 @@
   <h1 class="mb-0"><%= @mechanic.name %></h1>
 
   <div class="d-flex gap-2">
-    <%= link_to "Edit", edit_mechanic_path(@mechanic), class: "btn btn-primary" %>
-    <%= button_to "Delete", @mechanic, method: :delete, class: "btn btn-outline-danger",
-                  form: { data: { turbo_confirm: "Delete staff member #{@mechanic.name}? Their repairs will be left unassigned." } } %>
+    <% if policy(@mechanic).edit? %>
+      <%= link_to "Edit", edit_mechanic_path(@mechanic), class: "btn btn-primary" %>
+    <% end %>
+    <% if policy(@mechanic).destroy? %>
+      <%= button_to "Delete", @mechanic, method: :delete, class: "btn btn-outline-danger",
+                    form: { data: { turbo_confirm: "Delete staff member #{@mechanic.name}? Their repairs will be left unassigned." } } %>
+    <% end %>
   </div>
 </div>
 
 <h2 class="h4 mt-4">Repairs assigned</h2>
 
-<% if @mechanic.repairs.any? %>
+<% if @repairs.any? %>
   <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
       <thead>
@@ -29,7 +33,7 @@
       </thead>
 
       <tbody>
-        <%= render @mechanic.repairs %>
+        <%= render @repairs %>
       </tbody>
     </table>
   </div>

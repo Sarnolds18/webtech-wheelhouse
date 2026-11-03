@@ -1,3 +1,7 @@
+<%# One form for the three roles: it draws only the fields in the policy's list for this person (a
+    mechanic: the state, the diagnosis and new photos). The controller permits the same list. %>
+<% may_write = ->(field) { policy(repair).permitted_attribute?(field) } %>
+
 <%= form_with model: repair do |form| %>
   <%= render "shared/error_summary", record: repair %>
 
@@ -5,45 +9,56 @@
     <legend class="h5">Intake</legend>
 
     <div class="row g-3">
-      <div class="col-md-6">
-        <%= form.label :bike_id, "Bike", class: "form-label" %>
-        <%= form.collection_select :bike_id, Bike.by_serial_number, :id, :serial_number,
-                                   { prompt: "Choose a bike" },
-                                   class: field_class(form, :bike_id, "form-select"),
-                                   aria: { describedby: "repair_bike_help" } %>
-        <div id="repair_bike_help" class="form-text">The customer is taken from the bike's owner.</div>
-        <%= field_errors(form, :bike_id) %>
-      </div>
+      <% if may_write.(:bike_id) %>
+        <div class="col-md-6">
+          <%= form.label :bike_id, "Bike", class: "form-label" %>
+          <%= form.collection_select :bike_id, policy_scope(Bike).by_serial_number, :id, :serial_number,
+                                     { prompt: "Choose a bike" },
+                                     class: field_class(form, :bike_id, "form-select"),
+                                     aria: { describedby: "repair_bike_help" } %>
+          <div id="repair_bike_help" class="form-text">The customer is taken from the bike's owner.</div>
+          <%= field_errors(form, :bike_id) %>
+        </div>
+      <% end %>
 
-      <div class="col-md-6">
-        <%= form.label :mechanic_id, "Mechanic", class: "form-label" %>
-        <%= form.collection_select :mechanic_id, Mechanic.by_name, :id, :name,
-                                   { include_blank: "Not assigned yet" },
-                                   class: field_class(form, :mechanic_id, "form-select") %>
-        <%= field_errors(form, :mechanic_id) %>
-      </div>
+      <% if may_write.(:mechanic_id) %>
+        <div class="col-md-6">
+          <%= form.label :mechanic_id, "Mechanic", class: "form-label" %>
+          <%= form.collection_select :mechanic_id, policy_scope(Mechanic).by_name, :id, :name,
+                                     { include_blank: "Not assigned yet" },
+                                     class: field_class(form, :mechanic_id, "form-select") %>
+          <%= field_errors(form, :mechanic_id) %>
+        </div>
+      <% end %>
 
-      <div class="col-md-4">
-        <%= form.label :state, class: "form-label" %>
-        <%= form.select :state, Repair.states.keys.map { |state| [ state.humanize, state ] }, {},
-                        class: field_class(form, :state, "form-select") %>
-        <%= field_errors(form, :state) %>
-      </div>
+      <% if may_write.(:state) %>
+        <div class="col-md-4">
+          <%= form.label :state, class: "form-label" %>
+          <%= form.select :state, Repair.states.keys.map { |state| [ state.humanize, state ] }, {},
+                          class: field_class(form, :state, "form-select") %>
+          <%= field_errors(form, :state) %>
+        </div>
+      <% end %>
 
-      <div class="col-md-4">
-        <%= form.label :received_at, "Received", class: "form-label" %>
-        <%= form.datetime_field :received_at, include_seconds: false, class: field_class(form, :received_at) %>
-        <%= field_errors(form, :received_at) %>
-      </div>
+      <% if may_write.(:received_at) %>
+        <div class="col-md-4">
+          <%= form.label :received_at, "Received", class: "form-label" %>
+          <%= form.datetime_field :received_at, include_seconds: false, class: field_class(form, :received_at) %>
+          <%= field_errors(form, :received_at) %>
+        </div>
+      <% end %>
 
-      <div class="col-md-4">
-        <%= form.label :promised_on, "Promised for", class: "form-label" %>
-        <%= form.date_field :promised_on, class: field_class(form, :promised_on) %>
-        <%= field_errors(form, :promised_on) %>
-      </div>
+      <% if may_write.(:promised_on) %>
+        <div class="col-md-4">
+          <%= form.label :promised_on, "Promised for", class: "form-label" %>
+          <%= form.date_field :promised_on, class: field_class(form, :promised_on) %>
+          <%= field_errors(form, :promised_on) %>
+        </div>
+      <% end %>
     </div>
   </fieldset>
 
+  <% if may_write.(:photos) %>
   <fieldset class="mb-4">
     <legend class="h5">Intake photos</legend>
 
@@ -57,7 +72,9 @@
     </div>
     <%= field_errors(form, :photos) %>
   </fieldset>
+  <% end %>
 
+  <% if may_write.(:diagnosis) %>
   <fieldset class="mb-4">
     <legend class="h5">Diagnosis</legend>
 
@@ -66,7 +83,9 @@
     <div id="repair_diagnosis_help" class="form-text">Optional. Bold, lists, links and quotes are kept.</div>
     <%= field_errors(form, :diagnosis) %>
   </fieldset>
+  <% end %>
 
+  <% if may_write.(:quoted_amount) %>
   <fieldset class="mb-4">
     <legend class="h5">Quote</legend>
 
@@ -98,7 +117,9 @@
       </div>
     </div>
   </fieldset>
+  <% end %>
 
+  <% if may_write.(:repair_services_attributes) %>
   <fieldset class="mb-4">
     <legend class="h5">Services charged</legend>
     <p class="form-text mt-0">
@@ -135,7 +156,9 @@
       </div>
     <% end %>
   </fieldset>
+  <% end %>
 
+  <% if may_write.(:collected_at) %>
   <fieldset class="mb-4">
     <legend class="h5">Hand-back</legend>
 
@@ -153,6 +176,7 @@
       </div>
     </div>
   </fieldset>
+  <% end %>
 
   <div class="d-flex flex-wrap gap-2">
     <%= form.submit class: "btn btn-primary" %>

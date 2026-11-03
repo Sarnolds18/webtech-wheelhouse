@@ -1,0 +1,18 @@
+<% content_for :title, "Not allowed" %>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6 text-center">
+    <i class="bi bi-shield-lock fs-1 text-secondary d-block mb-3" aria-hidden="true"></i>
+    <h1>You are not allowed to do that</h1>
+
+    <p class="lead">
+      Your account can't open this page or make this change. Nothing was changed.
+    </p>
+
+    <p>
+      If you think your work needs it, ask the owner of the workshop.
+    </p>
+
+    <%= link_to "Go to the home page", root_path, class: "btn btn-primary" %>
+  </div>
+</div>

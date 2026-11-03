@@ -1,8 +1,17 @@
 class RepairsController < ApplicationController
   before_action :set_repair, only: [ :show, :edit, :update, :destroy ]
 
+  # Built from the reader's scope, with the filters and the order chained on it: a mechanic who filters
+  # by state or asks for the overdue ones still sees only their own repairs.
   def index
-    @repairs = Repair.newest_first.includes(:bike, :customer, taken_in_by: :mechanic).with_attached_photos.with_rich_text_diagnosis
+    authorize Repair
+    @state = params[:state].presence_in(Repair.states.keys)
+    @overdue = params[:overdue] == "1"
+
+    @repairs = policy_scope(Repair).newest_first
+    @repairs = @repairs.where(state: @state) if @state
+    @repairs = @repairs.overdue if @overdue
+    @repairs = @repairs.includes(:bike, :customer, taken_in_by: :mechanic).with_attached_photos.with_rich_text_diagnosis
   end
 
   def show
@@ -10,12 +19,12 @@ class RepairsController < ApplicationController
 
   # Opened from a bike's page, the bike comes already chosen.
   def new
-    @repair = Repair.new(bike: Bike.find_by(id: params[:bike_id]), received_at: Time.current)
+    @repair = authorize Repair.new(bike: policy_scope(Bike).find_by(id: params[:bike_id]), received_at: Time.current)
     build_blank_lines
   end
 
   def create
-    @repair = Repair.new
+    @repair = authorize Repair.new
     assign_repair_params
     # From the session, never from the form: whoever is signed in took the repair in.
     @repair.taken_in_by = Current.user
@@ -55,17 +64,19 @@ class RepairsController < ApplicationController
 
   private
 
+  # Found and asked about before the action runs, so a refused request reads nothing and writes nothing.
+  # The policy is asked about the repair as it is stored: a repair already handed back is refused to
+  # the counter even if the form sends another state.
   def set_repair
-    @repair = Repair.includes(:bike, :customer, :mechanic, { taken_in_by: :mechanic }, repair_services: :service, invoices: [])
+    @repair = authorize Repair.includes(:bike, :customer, :mechanic, { taken_in_by: :mechanic }, repair_services: :service, invoices: [])
                     .with_attached_photos.with_rich_text_diagnosis_and_embeds.find(params[:id])
   end
 
+  # The fields come from the policy, according to who asks: a mechanic's list has only the state, the
+  # diagnosis and new photos, so a mechanic_id or a charged price sent by hand is dropped like any field
+  # outside the list. The account that took the repair in is never among them.
   def repair_params
-    params.expect(repair: [ :bike_id, :mechanic_id, :state, :received_at, :promised_on,
-                            :quoted_at, :quoted_amount, :quote_response, :responded_at,
-                            :finished_at, :collected_at, :diagnosis,
-                            repair_services_attributes: [ [ :id, :service_id, :charged_price, :_destroy ] ],
-                            photos: [] ])
+    params.expect(repair: policy(@repair).permitted_attributes)
   end
 
   # Photos chosen in the form are added to the ones the repair already has. Assigning them as an

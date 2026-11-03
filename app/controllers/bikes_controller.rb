@@ -2,19 +2,25 @@ class BikesController < ApplicationController
   before_action :set_bike, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @bikes = Bike.by_serial_number.includes(:customer, :bike_model)
+    authorize Bike
+    @bikes = policy_scope(Bike).by_serial_number.includes(:customer, :bike_model)
   end
 
+  # The bike's repairs follow the reader's scope, like every other list of repairs.
   def show
+    @repairs = policy_scope(Repair).where(bike: @bike).newest_first
+                                   .includes(:bike, :customer, taken_in_by: :mechanic)
+                                   .with_attached_photos.with_rich_text_diagnosis
   end
 
   # Opened from a customer's page, the owner comes already chosen.
   def new
-    @bike = Bike.new(customer: Customer.find_by(id: params[:customer_id]))
+    @bike = authorize Bike.new(customer: policy_scope(Customer).find_by(id: params[:customer_id]))
   end
 
   def create
-    @bike = Bike.new(bike_params)
+    @bike = authorize Bike.new
+    @bike.assign_attributes(bike_params)
 
     if @bike.save
       redirect_to @bike, notice: "Bike #{@bike.serial_number} was created."
@@ -45,11 +51,12 @@ class BikesController < ApplicationController
 
   private
 
+  # Found and asked about before the action runs, so a refused request reads nothing and writes nothing.
   def set_bike
-    @bike = Bike.includes(:customer, :bike_model, repairs: [ :bike, :customer, :rich_text_diagnosis, { taken_in_by: :mechanic }, { photos_attachments: :blob } ]).find(params[:id])
+    @bike = authorize Bike.includes(:customer, :bike_model).find(params[:id])
   end
 
   def bike_params
-    params.expect(bike: [ :serial_number, :bike_model_id, :customer_id ])
+    params.expect(bike: policy(@bike).permitted_attributes)
   end
 end

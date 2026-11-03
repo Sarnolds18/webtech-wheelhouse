@@ -1,4 +1,4 @@
-<%# The repair's stored photos, each shown large and linking to the original and with its own Remove button. Only
+<%# The repair's stored photos, each shown large and linking to the original and with its own Remove button for who may remove it. Only
     persisted photos are listed: on an edit form shown again after a refused upload, the refused
     files are on the repair in memory but were never stored. %>
 <% photos = repair.photos_attachments.select(&:persisted?) %>
@@ -14,9 +14,11 @@
           <% end %>
           <figcaption class="figure-caption d-flex justify-content-between align-items-center">
             Photo <%= number %>
-            <%= button_to "Remove", repair_photo_path(repair, photo), method: :delete,
-                          class: "btn btn-sm btn-outline-danger",
-                          form: { data: { turbo_confirm: "Remove photo #{number} from repair ##{repair.id}?" } } %>
+            <% if policy(repair).destroy_photo? %>
+              <%= button_to "Remove", repair_photo_path(repair, photo), method: :delete,
+                            class: "btn btn-sm btn-outline-danger",
+                            form: { data: { turbo_confirm: "Remove photo #{number} from repair ##{repair.id}?" } } %>
+            <% end %>
           </figcaption>
         </figure>
       </div>

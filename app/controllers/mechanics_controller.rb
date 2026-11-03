@@ -2,18 +2,25 @@ class MechanicsController < ApplicationController
   before_action :set_mechanic, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @mechanics = Mechanic.by_name
+    authorize Mechanic
+    @mechanics = policy_scope(Mechanic).by_name
   end
 
+  # The repairs assigned to this member of the staff, as far as the reader may read them: a mechanic
+  # looking at a colleague's page sees none of the colleague's repairs.
   def show
+    @repairs = policy_scope(Repair).where(mechanic: @mechanic).newest_first
+                                   .includes(:bike, :customer, taken_in_by: :mechanic)
+                                   .with_attached_photos.with_rich_text_diagnosis
   end
 
   def new
-    @mechanic = Mechanic.new
+    @mechanic = authorize Mechanic.new
   end
 
   def create
-    @mechanic = Mechanic.new(mechanic_params)
+    @mechanic = authorize Mechanic.new
+    @mechanic.assign_attributes(mechanic_params)
 
     if @mechanic.save
       redirect_to @mechanic, notice: "Staff member #{@mechanic.name} was created."
@@ -44,11 +51,12 @@ class MechanicsController < ApplicationController
 
   private
 
+  # Found and asked about before the action runs, so a refused request reads nothing and writes nothing.
   def set_mechanic
-    @mechanic = Mechanic.includes(repairs: [ :bike, :customer, :rich_text_diagnosis, { taken_in_by: :mechanic }, { photos_attachments: :blob } ]).find(params[:id])
+    @mechanic = authorize Mechanic.find(params[:id])
   end
 
   def mechanic_params
-    params.expect(mechanic: [ :name ])
+    params.expect(mechanic: policy(@mechanic).permitted_attributes)
   end
 end

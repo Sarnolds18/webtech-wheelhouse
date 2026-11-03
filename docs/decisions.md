@@ -32,3 +32,29 @@ Every account has a role: owner, mechanic or counter. A new account gets one bef
 **What I decided.** The default is `mechanic`. The mechanic works on the bike in front of them: reads the repair, writes the diagnosis, does the work. The person at the counter takes the customer in, holds their phone number, quotes, hands the bike back and charges for it — customers' data and money. The owner does everything. Of the three, the mechanic needs the least, so an account nobody has looked at yet starts there, and the owner raises it from the seed or the console.
 
 **What changes if the answer is different.** Only the default of the `role` column, in a migration. The accounts that already exist keep their role.
+
+## 5. Which actions ask no policy, and why
+
+Every action of every controller asks its policy, and every index is built from a policy scope:
+`ApplicationController` checks both after each action (`verify_authorized`, `verify_policy_scoped`), so an
+action that forgets raises an error instead of answering, and a new controller is covered without a line
+written in it. These actions skip the check, because they are about the session itself and there is no
+record and no role to ask about yet:
+
+| Controller | Actions | Why it is public |
+|---|---|---|
+| `SessionsController` | `new`, `create`, `destroy` | Signing in is done by someone with no account yet in the session; signing out ends the session the request carries. |
+| `RegistrationsController` | `new`, `create` | Signing up is done by someone with no account. The account made gets the default role. |
+| `PasswordsController` | `new`, `create`, `edit`, `update` | Whoever forgot their password has no session; the reset link's token is what proves who they are. |
+
+The price list (`ServicesController#index` and `#show`) is open to visitors, but it is not on this list:
+it asks `ServicePolicy`, which answers yes to everyone. The API (`/api/v1`) has its own base controller,
+outside `ApplicationController`, and keeps its token check.
+
+## 6. Another mechanic's repair: 403, not 404
+
+A mechanic who changes the id in the URL to a repair that is not theirs gets the `403` page, for the
+repair's page and for its edit form alike. The repair exists and the mechanic already knows it does
+(they work in the same workshop and can read the staff's names), so a `404` would hide nothing; the
+`403` says what actually happened. The scope and `RepairPolicy#show?` give the same answer, so the
+repairs a mechanic is refused are exactly the ones missing from their index.

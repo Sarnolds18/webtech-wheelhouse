@@ -3,8 +3,8 @@
 Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its Rails application: the
 pages about the shop — **Home**, **Services** (the shop's price list), **Visiting the workshop** (location, hours
 and what happens when a bike comes in) and **About** — and the pages the shop works with: **Customers**,
-**Bikes**, **Repairs** and **Staff**. Every one of these records can be listed, viewed, created, edited
-and deleted from the browser. A repair's form also records the services charged on it, the photos
+**Bikes**, **Repairs** and **Staff**. These records are listed, viewed, created, edited and deleted from
+the browser, by whoever the account's role allows. A repair's form also records the services charged on it, the photos
 taken when the bike came in (shown as thumbnails wherever repairs are listed) and the mechanic's
 diagnosis, written with formatting.
 
@@ -15,7 +15,9 @@ service need a token. See [The API](#the-api) below.
 The people of the workshop sign in with an email address and a password. Only the price list
 (**Services**, its list and each service's page) and the sign-in, sign-up and forgotten-password pages
 are open; every other page asks to sign in first, and then returns to the page that was asked for. Each
-account has a role (owner, mechanic or counter), and a repair records the account that took it in. See
+account has a role (owner, mechanic or counter) that decides which pages and buttons it gets (built with
+the Pundit gem, one policy per resource in `app/policies/`), and a repair records the account that took it
+in. See
 `docs/` for the domain model, user stories, wireframes and open design decisions the application is
 built towards.
 
@@ -24,6 +26,7 @@ built towards.
 - [`docs/user-stories.md`](docs/user-stories.md) — who uses the shop's internal tools and why
 - [`docs/wireframes.md`](docs/wireframes.md) — sketches of the screens those stories describe
 - [`docs/decisions.md`](docs/decisions.md) — open questions for the owner and what was assumed instead
+- [`docs/permissions.md`](docs/permissions.md) — what each role may do, action by action
 - [`docs/api.md`](docs/api.md) — the JSON API: its routes, the documents it answers, and why they look
   the way they do
 
@@ -62,14 +65,18 @@ seed again replaces them rather than adding more.
 The seed creates these accounts. They exist only in the development database, for trying the app;
 their passwords are written here for that reason and are not used anywhere else.
 
-| Email address | Password | Role | Member of the staff |
-|---|---|---|---|
-| `patricia@wheelhouse.cl` | `owner-lagos-2026` | owner | Patricia Lagos |
-| `camila@wheelhouse.cl` | `counter-vidal-2026` | counter | Camila Vidal |
-| `matias@wheelhouse.cl` | `mechanic-fuentes-2026` | mechanic | Matías Fuentes |
-| `ignacia@wheelhouse.cl` | `mechanic-rojas-2026` | mechanic | Ignacia Rojas |
-| `benjamin@wheelhouse.cl` | `mechanic-soto-2026` | mechanic | Benjamín Soto |
-| `nueva@wheelhouse.cl` | `no-staff-yet-2026` | mechanic (the default) | none |
+| Email address | Password | Role | Member of the staff | What the account can do |
+|---|---|---|---|---|
+| `patricia@wheelhouse.cl` | `owner-lagos-2026` | owner | Patricia Lagos | Everything: every page, every repair, the price list and the staff. |
+| `camila@wheelhouse.cl` | `counter-vidal-2026` | counter | Camila Vidal | Takes bikes in: creates and edits customers, bikes and repairs, reads every repair, edits none handed back; reads the price list and the staff. |
+| `matias@wheelhouse.cl` | `mechanic-fuentes-2026` | mechanic | Matías Fuentes | Reads only the repairs assigned to Matías and changes their state, diagnosis and photos until handed back; no customers or bikes. |
+| `ignacia@wheelhouse.cl` | `mechanic-rojas-2026` | mechanic | Ignacia Rojas | The same as Matías, for the repairs assigned to Ignacia. |
+| `benjamin@wheelhouse.cl` | `mechanic-soto-2026` | mechanic | Benjamín Soto | The same as Matías, for the repairs assigned to Benjamín. |
+| `nueva@wheelhouse.cl` | `no-staff-yet-2026` | mechanic (the default) | none | What a new sign-up gets: reads the price list and the staff, and no repair, since no repair is assigned to it. |
+
+What each role may do, action by action, is in [docs/permissions.md](docs/permissions.md). A request
+an account may not make answers with a **403** page ("You are not allowed to do that"); a visitor with
+no session is sent to sign in instead.
 
 A new account can also be made on the **Sign up** page, linked from the sign-in page. It gets the
 default role; the role and the member of the staff of an account are changed from the seed or the

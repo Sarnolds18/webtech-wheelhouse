@@ -1,22 +1,24 @@
 class ServicesController < ApplicationController
   # The wall list is public: anyone can read the list and a service's page. Creating, editing and
-  # deleting a service need a session.
+  # deleting a service need a session, and then the policy (only the owner).
   allow_unauthenticated_access only: [ :index, :show ]
   before_action :set_service, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @services = Service.by_category_and_name
+    authorize Service
+    @services = policy_scope(Service).by_category_and_name
   end
 
   def show
   end
 
   def new
-    @service = Service.new
+    @service = authorize Service.new
   end
 
   def create
-    @service = Service.new(service_params)
+    @service = authorize Service.new
+    @service.assign_attributes(service_params)
 
     if @service.save
       redirect_to @service, notice: "Service #{@service.name} was created."
@@ -47,11 +49,12 @@ class ServicesController < ApplicationController
 
   private
 
+  # Found and asked about before the action runs, so a refused request reads nothing and writes nothing.
   def set_service
-    @service = Service.find(params[:id])
+    @service = authorize Service.find(params[:id])
   end
 
   def service_params
-    params.expect(service: [ :name, :price, :category ])
+    params.expect(service: policy(@service).permitted_attributes)
   end
 end

@@ -1,11 +1,31 @@
 <% password_digest = BCrypt::Password.create("password1234") %>
 
+# The owner.
 one:
   email_address: one@example.com
   password_digest: <%= password_digest %>
-  mechanic: fuentes
+  mechanic: lagos
   role: owner
 
+# An account made on the sign-up page: the default role and no member of the staff.
 two:
   email_address: two@example.com
   password_digest: <%= password_digest %>
+
+counter:
+  email_address: counter@example.com
+  password_digest: <%= password_digest %>
+  mechanic: vidal
+  role: counter
+
+fuentes:
+  email_address: fuentes@example.com
+  password_digest: <%= password_digest %>
+  mechanic: fuentes
+  role: mechanic
+
+rojas:
+  email_address: rojas@example.com
+  password_digest: <%= password_digest %>
+  mechanic: rojas
+  role: mechanic

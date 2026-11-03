@@ -65,3 +65,5 @@ group :test do
 end
 
 gem "rack-cors", "~> 3.0"
+
+gem "pundit", "~> 2.5"

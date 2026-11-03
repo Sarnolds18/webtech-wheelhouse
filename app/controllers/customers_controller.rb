@@ -2,18 +2,20 @@ class CustomersController < ApplicationController
   before_action :set_customer, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @customers = Customer.by_name
+    authorize Customer
+    @customers = policy_scope(Customer).by_name
   end
 
   def show
   end
 
   def new
-    @customer = Customer.new
+    @customer = authorize Customer.new
   end
 
   def create
-    @customer = Customer.new(customer_params)
+    @customer = authorize Customer.new
+    @customer.assign_attributes(customer_params)
 
     if @customer.save
       redirect_to @customer, notice: "Customer #{@customer.name} was created."
@@ -44,11 +46,12 @@ class CustomersController < ApplicationController
 
   private
 
+  # Found and asked about before the action runs, so a refused request reads nothing and writes nothing.
   def set_customer
-    @customer = Customer.includes(bikes: :bike_model).find(params[:id])
+    @customer = authorize Customer.includes(bikes: :bike_model).find(params[:id])
   end
 
   def customer_params
-    params.expect(customer: [ :name, :phone ])
+    params.expect(customer: policy(@customer).permitted_attributes)
   end
 end

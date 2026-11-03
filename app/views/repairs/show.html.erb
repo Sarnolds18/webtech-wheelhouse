@@ -4,18 +4,23 @@
   <h1 class="mb-0">Repair #<%= @repair.id %></h1>
 
   <div class="d-flex gap-2">
-    <%= link_to "Edit", edit_repair_path(@repair), class: "btn btn-primary" %>
-    <%= button_to "Delete", @repair, method: :delete, class: "btn btn-outline-danger",
-                  form: { data: { turbo_confirm: "Delete repair ##{@repair.id} for bike #{@repair.bike.serial_number}? Its charged services and invoice are deleted with it." } } %>
+    <% if policy(@repair).edit? %>
+      <%= link_to "Edit", edit_repair_path(@repair), class: "btn btn-primary" %>
+    <% end %>
+    <% if policy(@repair).destroy? %>
+      <%= button_to "Delete", @repair, method: :delete, class: "btn btn-outline-danger",
+                    form: { data: { turbo_confirm: "Delete repair ##{@repair.id} for bike #{@repair.bike.serial_number}? Its charged services and invoice are deleted with it." } } %>
+    <% end %>
   </div>
 </div>
 
 <dl class="row">
   <dt class="col-sm-3">Bike</dt>
-  <dd class="col-sm-9"><%= link_to @repair.bike.serial_number, bike_path(@repair.bike) %></dd>
+  <%# Shown to everyone who reads the repair; a link only for who may open the bike or the customer. %>
+  <dd class="col-sm-9"><%= link_to_if policy(@repair.bike).show?, @repair.bike.serial_number, bike_path(@repair.bike) %></dd>
 
   <dt class="col-sm-3">Customer</dt>
-  <dd class="col-sm-9"><%= link_to @repair.customer.name, customer_path(@repair.customer) %></dd>
+  <dd class="col-sm-9"><%= link_to_if policy(@repair.customer).show?, @repair.customer.name, customer_path(@repair.customer) %></dd>
 
   <dt class="col-sm-3">Mechanic</dt>
   <dd class="col-sm-9"><%= @repair.mechanic&.name || "Not assigned yet" %></dd>

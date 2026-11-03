@@ -18,3 +18,19 @@ collected:
   responded_at: <%= 9.days.ago.to_fs(:db) %>
   finished_at: <%= 8.days.ago.to_fs(:db) %>
   collected_at: <%= 7.days.ago.to_fs(:db) %>
+
+fuentes_open:
+  bike: javiera_marlin
+  customer: javiera
+  mechanic: fuentes
+  state: in_progress
+  received_at: <%= 2.days.ago.to_fs(:db) %>
+  promised_on: <%= 2.days.from_now.to_date %>
+
+rojas_open:
+  bike: diego_aspect
+  customer: diego
+  mechanic: rojas
+  state: diagnosed
+  received_at: <%= 3.days.ago.to_fs(:db) %>
+  promised_on: <%= 1.day.ago.to_date %>
