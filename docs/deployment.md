@@ -73,6 +73,13 @@ the password of an already initialized PostgreSQL cluster.
 `.kamal/secrets` contains references only. No secret is passed as a Docker build argument.
 The image excludes local key files and uses `SECRET_KEY_BASE_DUMMY` only to compile assets.
 
-This infrastructure commit is not yet ready for `kamal setup`: Rails HTTP settings, real SMTP
-delivery and production password handling follow in separate commits. Actual deploys, rollback,
-persistence checks and sanitized terminal evidence will be recorded here afterwards.
+## HTTP transport
+
+The proxy has `ssl: false`; Rails production has both `assume_ssl` and `force_ssl` disabled.
+Requests and authentication cookies can use HTTP on the public IP. The reasons, transport risks,
+browser warnings and GitHub Pages mixed-content limitation are documented in
+[decisions.md, section 7](decisions.md#7-plain-http-on-the-production-ip-lab-13).
+
+The configuration is not yet ready for `kamal setup`: real SMTP delivery and production password
+handling follow in separate commits. Actual deploys, rollback, persistence checks and sanitized
+terminal evidence will be recorded here afterwards.

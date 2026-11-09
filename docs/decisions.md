@@ -58,3 +58,67 @@ repair's page and for its edit form alike. The repair exists and the mechanic al
 (they work in the same workshop and can read the staff's names), so a `404` would hide nothing; the
 `403` says what actually happened. The scope and `RepairPolicy#show?` give the same answer, so the
 repairs a mechanic is refused are exactly the ones missing from their index.
+
+## 7. Plain HTTP on the production IP (Lab 13)
+
+**What I decided.** The lab application is reached at `http://<PUBLIC_IP>` on port 80, without a
+domain or TLS certificate. Kamal's proxy has `ssl: false`. The instructor permits AWS EC2 in place
+of DigitalOcean as long as the same deployment and persistence requirements can be demonstrated.
+
+In `config/environments/production.rb` these two generated settings changed from `true` to `false`:
+
+| Setting | What it did | Why it is disabled for this lab |
+|---|---|---|
+| `config.assume_ssl` | Told Rails that the proxy had already terminated TLS, so the original request was HTTPS even though the proxy-to-Rails connection was HTTP. This describes a trusted proxy; it does not encrypt traffic itself. | The client-to-proxy connection is HTTP too. Pretending it was HTTPS would produce incorrect secure-request behavior, including cookies or URLs intended for HTTPS. |
+| `config.force_ssl` | Installed Rails' SSL middleware: redirected HTTP to HTTPS, marked cookies `Secure`, and added HSTS to HTTPS responses so browsers would remember to use HTTPS. | There is no HTTPS endpoint. Requests must stay on HTTP, and session cookies must be sent over HTTP for sign-in to work. With this middleware absent, Rails does not add those redirects, the automatic `Secure` cookie flag or HSTS. |
+
+No extra `ssl_options` exception for `/up` is necessary: the whole application uses HTTP, including
+the health check. Authentication still uses signed cookies with `HttpOnly` and `SameSite=Lax`, and
+CSRF checks and Pundit authorization remain enabled. These protections do not encrypt a connection.
+
+### What the counter gives up
+
+An attacker on the same Wi-Fi who can intercept the counter's traffic can read passwords submitted
+to sign in or sign up, session cookies, password-reset tokens in URLs, API bearer tokens, customers'
+details, diagnoses and photos. A signed cookie cannot be forged without the signing key, but a
+captured cookie can be replayed to impersonate that account. A stolen API token permits the API's
+protected operations. An attacker who can alter traffic can also replace responses or form contents,
+inject scripts and change submitted data. `HttpOnly`, CSRF checks and role permissions do not prevent
+these attacks on an unencrypted connection.
+
+The browser may warn about an insecure site or try HTTPS first because of its own HTTPS-first mode.
+That browser behavior is distinct from a server redirect. The production evidence must show that
+`curl -I http://<PUBLIC_IP>/up` returns `200` with no `Location: https://...`, and that a request for a
+closed page redirects to the HTTP sign-in URL.
+
+### The published price list and mixed content
+
+GitHub Pages serves the personal page over HTTPS. If its `API_URL` is temporarily pointed at the
+production HTTP IP, the browser blocks its `fetch` as mixed content, before CORS could make the
+response available. A Chrome-style diagnostic is:
+
+```text
+Mixed Content: The page at 'https://sarnolds18.github.io/webtech-lab-01/' was loaded over HTTPS,
+but requested an insecure resource 'http://<PUBLIC_IP>/api/v1/services'. This request has been
+blocked; the content must be served over HTTPS.
+```
+
+This is an illustrative diagnostic, not captured production evidence. The exact message and IP
+will be recorded after the real deployment. The committed personal page keeps its existing API URL.
+For the lab's production API demonstration, serve a temporary local copy of the page from
+`http://localhost:8000`, set that copy's `API_URL` to `http://<PUBLIC_IP>/api/v1`, and keep that origin
+in the API's CORS allowlist. The loopback URL used by the existing published page is treated
+differently by browsers from a public HTTP IP.
+
+### How to restore HTTPS
+
+Provide a stable address and a browser-trusted TLS certificate valid for it (normally a domain
+pointing to the server), enable HTTPS at the proxy, and restore `force_ssl = true`. Use
+`assume_ssl = true` when the trusted proxy terminates TLS before forwarding to Rails. Generate mail
+links with `https://`, verify `Secure` cookies and HSTS, and point the published page at the HTTPS
+API. The resulting connection protects traffic confidentiality and integrity and removes this
+mixed-content block.
+
+References: [Rails SSL middleware](https://api.rubyonrails.org/classes/ActionDispatch/SSL.html),
+[mixed content](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Mixed_content), and
+[HSTS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security).
