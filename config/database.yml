@@ -82,8 +82,9 @@ production:
   primary: &primary_production
     <<: *default
     database: webtech_wheelhouse_production
+    host: <%= ENV.fetch("DB_HOST", "127.0.0.1").to_json %>
     username: webtech_wheelhouse
-    password: <%= ENV["WEBTECH_WHEELHOUSE_DATABASE_PASSWORD"] %>
+    password: <%= ENV["WEBTECH_WHEELHOUSE_DATABASE_PASSWORD"].to_json %>
   cache:
     <<: *primary_production
     database: webtech_wheelhouse_production_cache
