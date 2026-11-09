@@ -92,6 +92,20 @@ This starts the Rails server and the Sass watcher together. Open **http://localh
 
 (`bin/rails server` on its own also serves the app, but does not rebuild the CSS.)
 
+## Checks
+
+With the dependencies installed and PostgreSQL running:
+
+```bash
+bin/rails test
+bin/rubocop
+bin/brakeman --no-pager
+```
+
+Brakeman scans with the version in `Gemfile.lock`, without needing a network connection.
+CI also checks that Brakeman is up to date with `bin/brakeman --ensure-latest --no-pager`;
+that extra check needs access to RubyGems.
+
 ## Emails in development
 
 The app sends two emails: the link to choose a new password (**Forgot your password?** on the sign-in

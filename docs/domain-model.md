@@ -2,10 +2,10 @@
 
 ![Domain model](images/domain-model.png)
 
-*(The image above is the Lab 3 export and is now stale — it doesn't yet reflect the changes below. To
-update it: paste the DBML block into [dbdiagram.io](https://dbdiagram.io), export the new PNG, and
-replace `images/domain-model.png`. Claude can't drive that site, so this step is Santiago's to do by
-hand.)*
+*(The image above is a historical export and does not include the accounts added in Lab 11.
+The DBML below describes the current domain tables; Rails' storage and rich-text tables are
+described under "Changes in Lab 9". To refresh the image, paste the DBML into
+[dbdiagram.io](https://dbdiagram.io), export the PNG, and replace `images/domain-model.png`.)*
 
 ```dbml
 Table customers {
@@ -118,11 +118,11 @@ Ref: users.mechanic_id - mechanics.id
 Ref: sessions.user_id > users.id
 ```
 
-*(The `Ref:` lines are dbdiagram.io's notation for the relationship a foreign-key-style column implies —
-they document intent for the diagram. The database itself enforces none of them yet: no foreign key
-constraint exists this lab, see "Changes since Lab 3" below.)*
+The `Ref:` lines describe relationships enforced by PostgreSQL foreign keys. The original
+domain relationships gained constraints and indexes in Lab 6; the account relationships were
+added in Lab 11. Nullable references, such as the mechanic of a repair, remain optional.
 
-## Changes since Lab 3
+## Changes in Lab 5 since Lab 3
 
 - **Every table gains `created_at`/`updated_at`.** Rails convention, required by Lab 5's requirement 2;
   the Lab 3 diagram didn't model timestamps explicitly.
@@ -138,9 +138,9 @@ constraint exists this lab, see "Changes since Lab 3" below.)*
 - **`services.name` given a unique index.** The shop doesn't sell two services under the same name; the
   Lab 3 diagram didn't mark this, but Lab 5's own requirement text calls out "the name of a service" as
   an example directly.
-- **No foreign key constraints added at the database level.** `bike_model_id`, `customer_id`,
-  `mechanic_id`, `bike_id`, `service_id` and `repair_id` are plain columns today. Lab 5 reserves the
-  constraint — and the Active Record association that uses it — for Lab 7.
+- **No foreign key constraints were added in Lab 5.** The reference columns were initially plain
+  columns. Lab 6 subsequently added their constraints and indexes, together with the Active Record
+  associations. The current schema enforces those relationships.
 - **No `colour` column added to `bikes` or `bike_models`.** The seed data's "two bikes, same make, model
   and colour" case is represented with two bikes sharing a `bike_model_id` and differing only in
   `serial_number`. Colour itself isn't required by any Lab 5 requirement and isn't tracked yet.
