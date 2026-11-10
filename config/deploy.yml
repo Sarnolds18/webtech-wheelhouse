@@ -55,6 +55,7 @@ deploy_timeout: 180
 # SSH client needs the key for this host in ~/.ssh/config; see docs/deployment.md.
 builder:
   arch: amd64
+  local: false # Kamal would otherwise build on a laptop whose CPU matches the server's
   remote: <%= "ssh://ubuntu@#{ENV.fetch('WHEELHOUSE_HOST')}".to_json %>
 
 accessories:
