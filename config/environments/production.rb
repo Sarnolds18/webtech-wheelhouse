@@ -50,21 +50,28 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # Emails leave through Brevo's SMTP relay, sent by a Solid Queue job (deliver_later). A failed
+  # delivery raises, so the job is kept as failed in the queue database instead of vanishing.
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.raise_delivery_errors = true
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Links in emails open the app at the server's public IP, over plain HTTP, on port 80.
+  # APP_HOST is set by config/deploy.yml from WHEELHOUSE_HOST. (It is absent only while the image
+  # compiles its assets, when no email is sent.)
+  config.action_mailer.default_url_options = { host: ENV["APP_HOST"], protocol: "http" }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # The login and the SMTP key are in the encrypted credentials (smtp: user_name, password), which
+  # the server decrypts with RAILS_MASTER_KEY. Port 587 with STARTTLS; see docs/deployment.md.
+  config.action_mailer.smtp_settings = {
+    address: "smtp-relay.brevo.com",
+    port: 587,
+    user_name: Rails.application.credentials.dig(:smtp, :user_name),
+    password: Rails.application.credentials.dig(:smtp, :password),
+    authentication: :plain,
+    enable_starttls: true,
+    open_timeout: 10,
+    read_timeout: 10
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

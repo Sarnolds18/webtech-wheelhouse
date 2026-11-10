@@ -31,8 +31,9 @@ password authentication must also be configured and verified on the server itsel
   account. A normal application deploy does not replace the accessory or its volume.
 - **Photos:** originals and variants live in `webtech_wheelhouse_storage`, mounted at
   `/rails/storage`. Each new application container reuses it.
-- **Emails:** queued delivery jobs live in the queue database. Delivered email lives in the
-  recipient's mailbox, outside the application container.
+- **Emails:** `deliver_later` puts a delivery job in the queue database; Solid Queue, running inside
+  Puma, sends it to Brevo's SMTP relay. Delivered email lives in the recipient's mailbox. A deploy
+  keeps the queue database, so a job enqueued just before it runs in the new container.
 
 The image's entrypoint runs `bin/rails db:prepare` before Rails starts. On the first boot it creates
 missing databases, loads their schemas, applies migrations and runs the seed when the primary
@@ -68,6 +69,7 @@ the password of an already initialized PostgreSQL cluster.
 | `KAMAL_REGISTRY_PASSWORD` | Password manager; exported locally | `.kamal/secrets` reads it; Kamal logs in to Docker Hub on the laptop and server |
 | `RAILS_MASTER_KEY` | Ignored local `config/master.key`; exported locally | Kamal injects it into the Rails container at runtime |
 | `WEBTECH_WHEELHOUSE_DATABASE_PASSWORD` | Password manager; exported locally | Injected into Rails under this name and into PostgreSQL as `POSTGRES_PASSWORD` |
+| Brevo SMTP login and SMTP key | Encrypted `config/credentials.yml.enc`, under `smtp.user_name` and `smtp.password` | Rails decrypts them in the container with `RAILS_MASTER_KEY`; no environment variable of their own |
 | SSH private key | Private file outside the repository | Kamal reads the path in `WHEELHOUSE_SSH_KEY`; the key is not copied into the image |
 
 `.kamal/secrets` contains references only. No secret is passed as a Docker build argument.
@@ -80,6 +82,21 @@ Requests and authentication cookies can use HTTP on the public IP. The reasons, 
 browser warnings and GitHub Pages mixed-content limitation are documented in
 [decisions.md, section 7](decisions.md#7-plain-http-on-the-production-ip-lab-13).
 
-The configuration is not yet ready for `kamal setup`: real SMTP delivery and production password
-handling follow in separate commits. Actual deploys, rollback, persistence checks and sanitized
+## Email
+
+Production sends email through **Brevo** (free plan) at `smtp-relay.brevo.com`, **port 587** with
+STARTTLS. The sender is `Wheelhouse <sarnolds@miuandes.cl>`, an address Brevo has verified. Links in
+emails use `APP_HOST` (the server's IP) over `http://`, with no port. A failed delivery raises, so it
+stays as a failed job in the queue database instead of vanishing. Development still writes emails
+to `tmp/mails/` and sends nothing.
+
+To set the SMTP login and key, run `bin/rails credentials:edit` and add:
+
+```yaml
+smtp:
+  user_name: <Brevo SMTP login>
+  password: <Brevo SMTP key>
+```
+
+Production password handling follows in a separate commit. Actual deploys, rollback, persistence checks and sanitized
 terminal evidence will be recorded here afterwards.
