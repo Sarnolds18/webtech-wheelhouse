@@ -9,9 +9,22 @@ instance type and public IP will be recorded after the instance is created.
 
 ## Infrastructure
 
-Kamal 2 builds the Rails image locally with Docker Buildx for `amd64`, pushes it to Docker Hub,
-and deploys it over SSH as `ubuntu`. The server needs Docker installed and that user must be able
+Kamal 2 deploys over SSH as `ubuntu`. The server needs Docker installed and that user must be able
 to use it. The laptop needs Docker with Buildx, Ruby and the gems from `bundle install`.
+
+**The image is built on a remote builder: the server itself.** Kamal sends a clean Git checkout of the
+commit to Docker Buildx on the server over SSH (`builder.remote` in `config/deploy.yml`), which builds
+it for the server's `amd64` CPU and pushes it to Docker Hub; the app container is then pulled from
+Docker Hub. A local build was tried first, but the laptop's upload link (about 0.3 MB/s) made Docker
+Hub time out on the largest layer. The server has a 2 GB swap file so a build fits next to the running
+app. Docker's SSH client reads the key from `~/.ssh/config` on the laptop:
+
+```
+Host <server IP>
+  User ubuntu
+  IdentityFile ~/.ssh/wheelhouse-lab13.pem
+  IdentitiesOnly yes
+```
 
 | Container | Runs | Listening ports |
 |---|---|---|

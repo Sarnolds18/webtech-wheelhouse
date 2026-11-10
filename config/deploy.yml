@@ -50,9 +50,12 @@ volumes:
 asset_path: /rails/public/assets
 deploy_timeout: 180
 
-# The selected EC2 instance is x86-64. Build locally with Docker Buildx.
+# The image is built on the server itself (a remote builder over SSH), for its x86-64 CPU, and
+# pushed from there to Docker Hub: the laptop's upload link is too slow to push the image. Docker's
+# SSH client needs the key for this host in ~/.ssh/config; see docs/deployment.md.
 builder:
   arch: amd64
+  remote: <%= "ssh://ubuntu@#{ENV.fetch('WHEELHOUSE_HOST')}".to_json %>
 
 accessories:
   db:
