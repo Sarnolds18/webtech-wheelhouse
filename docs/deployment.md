@@ -35,11 +35,25 @@ password authentication must also be configured and verified on the server itsel
   Puma, sends it to Brevo's SMTP relay. Delivered email lives in the recipient's mailbox. A deploy
   keeps the queue database, so a job enqueued just before it runs in the new container.
 
-The image's entrypoint runs `bin/rails db:prepare` before Rails starts. On the first boot it creates
-missing databases, loads their schemas, applies migrations and runs the seed when the primary
-database is initialized. Subsequent boots prepare existing databases without reseeding them.
-Do not run a separate `db:seed` after the first boot. Production password handling is prepared
-in a later step.
+### Seed data and production passwords
+
+The image's entrypoint (`bin/docker-entrypoint`) runs `bin/rails db:prepare` before Rails starts. On
+the first boot, with an empty accessory, it creates the four databases, loads their schemas and
+**loads `db/seeds.rb` once**, because the primary database was just created. Later boots and deploys
+only apply pending migrations; they never seed again. Nothing is run by hand to load the seed. The
+seed sends no email: the welcome email is sent only by the sign-up page.
+
+The seed's passwords are published in the README, so right after the first deploy every account gets
+a new random password:
+
+```bash
+bin/kamal app exec "bin/rails wheelhouse:rotate_passwords"
+```
+
+The task prints each address, role and new password **once, in the laptop's terminal**, and closes
+every session. Those passwords go to a password manager and to the private Canvas comment, never to
+the repository. To stop the published passwords from coming back, `db/seeds.rb` refuses to run in
+production once any account exists.
 
 ## Local variables and secrets
 
@@ -98,5 +112,5 @@ smtp:
   password: <Brevo SMTP key>
 ```
 
-Production password handling follows in a separate commit. Actual deploys, rollback, persistence checks and sanitized
-terminal evidence will be recorded here afterwards.
+Actual deploys, rollback, persistence checks and sanitized terminal evidence will be recorded
+here afterwards.

@@ -7,6 +7,16 @@
 # accounts with their sessions.
 #
 # The accounts and their passwords are for development only; the README lists them.
+#
+# In production the seed is loaded once, by `db:prepare` when the container first starts on an empty
+# database; the passwords are then changed with `bin/rails wheelhouse:rotate_passwords`. Running the
+# seed again would delete every row and bring the published passwords back, so in production it
+# refuses to run once any account exists.
+
+if Rails.env.production? && User.exists?
+  abort "db/seeds.rb: production already has accounts; the seed is not loaded again " \
+        "(it would delete every row and restore the passwords published in the README)."
+end
 
 ActiveRecord::Base.transaction do
   ActionText::RichText.delete_all
