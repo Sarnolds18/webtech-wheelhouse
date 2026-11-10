@@ -1,5 +1,9 @@
 # Wheelhouse
 
+**In production: http://3.132.219.198** (plain HTTP on the server's IP; no domain, no port in the URL).
+How it is deployed, and how to deploy it to a server of your own: [Deploying](#deploying) below and
+[`docs/deployment.md`](docs/deployment.md).
+
 Wheelhouse is a neighbourhood bicycle repair shop. This repository holds its Rails application: the
 pages about the shop — **Home**, **Services** (the shop's price list), **Visiting the workshop** (location, hours
 and what happens when a bike comes in) and **About** — and the pages the shop works with: **Customers**,
@@ -29,6 +33,8 @@ built towards.
 - [`docs/permissions.md`](docs/permissions.md) — what each role may do, action by action
 - [`docs/api.md`](docs/api.md) — the JSON API: its routes, the documents it answers, and why they look
   the way they do
+- [`docs/deployment.md`](docs/deployment.md) — the production server: its containers, where each piece
+  of state lives, its secrets, and the record of every deploy
 
 ## Prerequisites
 
@@ -63,7 +69,9 @@ seed again replaces them rather than adding more.
 ## Accounts of the seed (development only)
 
 The seed creates these accounts. They exist only in the development database, for trying the app;
-their passwords are written here for that reason and are not used anywhere else.
+their passwords are written here for that reason and are not used anywhere else. **They do not sign in to
+production**: there, every password was changed after the seed was loaded, and the new ones are not in
+this repository.
 
 | Email address | Password | Role | Member of the staff | What the account can do |
 |---|---|---|---|---|
@@ -190,3 +198,59 @@ browser (`config/initializers/cors.rb`): the published page, and `http://localho
 is served while it's being developed (`python3 -m http.server 8000` in its folder). Recent versions of
 Chrome ask for permission before a public site talks to `localhost`: allow it, or open the page in
 Firefox.
+
+From production, the published page cannot read the API: the page is served over `https://` and the
+API over plain `http://`, and the browser blocks that mixed content
+([docs/decisions.md, section 7](docs/decisions.md#7-plain-http-on-the-production-ip-lab-13)). Served
+locally at `http://localhost:8000` with its API constant set to `http://3.132.219.198/api/v1`, it reads
+the production API; that origin is allowed (see [docs/deployment.md](docs/deployment.md)).
+
+## Deploying
+
+Wheelhouse runs in production on one Ubuntu server, deployed with **Kamal 2** from
+[`config/deploy.yml`](config/deploy.yml): Kamal builds the image on the server itself (a remote builder),
+pushes it to Docker Hub and starts it behind `kamal-proxy`, with PostgreSQL 18 as an accessory on the same
+server. [`docs/deployment.md`](docs/deployment.md) has the details and the record of each deploy.
+
+To deploy this repository to a server of your own you need:
+
+- **A server**: Ubuntu, x86-64, at least 2 GB of memory, a public IP, SSH with a key as the `ubuntu`
+  user, and inbound ports 22 (from your IP) and 80 open; 5432 closed. Docker installed on it
+  (`curl -fsSL https://get.docker.com | sudo sh && sudo usermod -aG docker ubuntu`).
+- **A Docker Hub account** and a personal **access token** with Read & Write permission.
+- **An SMTP account** on a free plan (Brevo is used here), with a verified sender. Put its SMTP login
+  and key in the encrypted credentials (`bin/rails credentials:edit`, under `smtp: user_name, password`)
+  and its sender in `app/mailers/application_mailer.rb`.
+- **On the laptop**: this repository cloned, `bundle install`, Docker with Buildx, an entry for the
+  server in `~/.ssh/config` with its key ([docs/deployment.md](docs/deployment.md#infrastructure)), and
+  `config/master.key` (the credentials' key; it is not in the repository: with your own key, recreate
+  the credentials with your own `secret_key_base`, `api_token` and `smtp`).
+
+Export these variables in the shell that runs Kamal (the secret ones are read without echoing them):
+
+```bash
+export WHEELHOUSE_HOST="<your server's public IP>"
+export KAMAL_REGISTRY_USERNAME="<your Docker Hub username>"
+export WHEELHOUSE_SSH_KEY="$HOME/.ssh/<your key>.pem"
+export RAILS_MASTER_KEY="$(cat config/master.key)"
+read -r -s -p "Docker Hub access token: " KAMAL_REGISTRY_PASSWORD; echo; export KAMAL_REGISTRY_PASSWORD
+read -r -s -p "PostgreSQL password: " WEBTECH_WHEELHOUSE_DATABASE_PASSWORD; echo
+export WEBTECH_WHEELHOUSE_DATABASE_PASSWORD
+```
+
+The first deploy is one command. It starts PostgreSQL and the app; the first boot creates the four
+databases and loads the seed once:
+
+```bash
+bin/kamal setup
+```
+
+Then give every account a new password (printed once, in your terminal; keep them somewhere safe), and
+open `http://<your server's IP>`:
+
+```bash
+bin/kamal app exec "bin/rails wheelhouse:rotate_passwords"
+```
+
+Every later version is deployed with `bin/kamal deploy`, and `bin/kamal rollback <version>` puts back an
+earlier one.

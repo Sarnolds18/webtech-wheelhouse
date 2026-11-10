@@ -93,21 +93,22 @@ closed page redirects to the HTTP sign-in URL.
 
 ### The published price list and mixed content
 
-GitHub Pages serves the personal page over HTTPS. If its `API_URL` is temporarily pointed at the
-production HTTP IP, the browser blocks its `fetch` as mixed content, before CORS could make the
-response available. A Chrome-style diagnostic is:
+GitHub Pages serves the personal page over HTTPS, and the API in production answers only over HTTP, so
+the browser refuses to let the published page read it: the request is blocked as mixed content before
+it leaves the browser, so CORS never gets a say. Captured on 2026-11-10 in Chrome's console, on the
+published page, asking the production API with `fetch("http://3.132.219.198/api/v1/services")`:
 
 ```text
-Mixed Content: The page at 'https://sarnolds18.github.io/webtech-lab-01/' was loaded over HTTPS,
-but requested an insecure resource 'http://<PUBLIC_IP>/api/v1/services'. This request has been
-blocked; the content must be served over HTTPS.
+Mixed Content: The page at 'https://sarnolds18.github.io/webtech-lab-01/' was loaded over HTTPS, but
+requested an insecure resource 'http://3.132.219.198/api/v1/services'. This request has been blocked;
+the content must be served over HTTPS.
+Uncaught (in promise) TypeError: Failed to fetch
 ```
 
-This is an illustrative diagnostic, not captured production evidence. The exact message and IP
-will be recorded after the real deployment. The committed personal page keeps its existing API URL.
-For the lab's production API demonstration, serve a temporary local copy of the page from
-`http://localhost:8000`, set that copy's `API_URL` to `http://<PUBLIC_IP>/api/v1`, and keep that origin
-in the API's CORS allowlist. The loopback URL used by the existing published page is treated
+The committed personal page keeps its existing API URL. The production API was shown instead from a
+temporary local copy of the page served at `http://localhost:8000`, with that copy's `API_URL` set to
+`http://3.132.219.198/api/v1`: that origin is in the API's CORS allowlist, and the page showed the
+price list and the service asked by id. The loopback URL used by the existing published page is treated
 differently by browsers from a public HTTP IP.
 
 ### How to restore HTTPS
